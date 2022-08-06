@@ -37,7 +37,7 @@ namespace Controller
             SubscriptionsOnCallBack();
         }
 
-        public void SubscriptionsOnCallBack()
+        private void SubscriptionsOnCallBack()
         {
             _enterInGameFormView.onSignInButtonClick += OpenSignInWindow;
             _enterInGameFormView.onCreateAccountButtonClick += OpenCreateAccauntWindow;

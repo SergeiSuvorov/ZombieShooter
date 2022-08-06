@@ -6,6 +6,16 @@ namespace Controller
 {
     public class MainController : BaseController
     {
+
+
+        private MainMenuController _mainMenuController;
+        private EnterInGameMenuController _enterInGameMenuController;
+
+        private BaseController _currentController;
+
+        private readonly Transform _placeForUi;
+        private readonly ProfilePlayer _profilePlayer;
+
         public MainController(Transform placeForUi, ProfilePlayer profilePlayer)
         {
             _profilePlayer = profilePlayer;
@@ -14,18 +24,14 @@ namespace Controller
             profilePlayer.CurrentState.SubscribeOnChange(OnChangeGameState);
         }
 
-        //private MainMenuController _mainMenuController;
-        private EnterInGameMenuController _enterInGameMenuController;
-
-        private readonly Transform _placeForUi;
-        private readonly ProfilePlayer _profilePlayer;
-
         protected override void OnDispose()
         {
-            //_mainMenuController?.Dispose();
+            _currentController?.Dispose();
+            _mainMenuController?.Dispose();
+            _enterInGameMenuController.Dispose();
             _profilePlayer.CurrentState.UnSubscriptionOnChange(OnChangeGameState);
 
-            _enterInGameMenuController.Dispose();
+
             base.OnDispose();
         }
 
@@ -34,14 +40,18 @@ namespace Controller
             switch (state)
             {
                 case GameState.Start:
+                    _currentController?.Dispose();
                     _enterInGameMenuController = new EnterInGameMenuController(_placeForUi, _profilePlayer);
-                    //_mainMenuController = new MainMenuController(_placeForUi, _profilePlayer);
+                    _currentController = _enterInGameMenuController;
                     break;
                 case GameState.Menu:
-                    Debug.Log("Menu");
+                    _currentController?.Dispose();
+                    _mainMenuController = new MainMenuController(_placeForUi, _profilePlayer);
+                    _currentController = _mainMenuController;
                     break;
                 case GameState.Game:
-                    //_mainMenuController?.Dispose();
+                    _currentController?.Dispose();
+                    Debug.Log("Start Game");
                     break;
                 default:
                     //_mainMenuController?.Dispose();
