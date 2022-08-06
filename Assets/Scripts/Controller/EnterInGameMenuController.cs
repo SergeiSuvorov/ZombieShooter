@@ -33,7 +33,7 @@ namespace Controller
             _enterInGameFormView = _view.EnterInGameView;
             _feedbackLog = _view.FeedbackLog;
             _playFabAccountContoller = new PlayFabAccountContoller();
-
+            AddController(_playFabAccountContoller);
             SubscriptionsOnCallBack();
         }
 

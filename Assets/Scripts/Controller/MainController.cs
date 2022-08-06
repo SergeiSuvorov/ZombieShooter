@@ -6,10 +6,9 @@ namespace Controller
 {
     public class MainController : BaseController
     {
-
-
         private MainMenuController _mainMenuController;
         private EnterInGameMenuController _enterInGameMenuController;
+        private GameController _gameController;
 
         private BaseController _currentController;
 
@@ -51,6 +50,8 @@ namespace Controller
                     break;
                 case GameState.Game:
                     _currentController?.Dispose();
+                    _gameController = new GameController();
+                    _currentController = _gameController;
                     Debug.Log("Start Game");
                     break;
                 default:
