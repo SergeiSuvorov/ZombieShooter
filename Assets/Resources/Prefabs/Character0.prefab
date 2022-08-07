@@ -189,6 +189,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _lookTransform: {fileID: 1393062762825524381}
+  _turnSmooth: 0.1
+  _turnSpeed: 3
 --- !u!54 &5443789063886144402
 Rigidbody:
   m_ObjectHideFlags: 0

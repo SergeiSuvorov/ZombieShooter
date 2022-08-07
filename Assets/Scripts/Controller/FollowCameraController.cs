@@ -4,10 +4,12 @@ using UnityEngine;
 
 namespace Controller
 {
-    public class FollowCameraController:BaseController
+    public class FollowCameraController:BaseController, ILateUpdateable
     {
         private FollowCameraView _view;
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = "Prefabs/FollowCameraView" };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.FollowCameraView };
+
+        public bool IsActive { get; set; }
 
         public FollowCameraController(Transform characterTransform)
         {
@@ -22,6 +24,12 @@ namespace Controller
 
             return objectView.GetComponent<FollowCameraView>();
         }
+
+        public void LateUpdateExecute()
+        {
+            _view.Follow();
+        }
+
     }
 }
 

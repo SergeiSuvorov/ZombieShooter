@@ -17,12 +17,7 @@ public class InputView : MonoBehaviour
         Cursor.visible = false;
     }
 
-    private void Update()
-    {
-        CheckInput();
-    }
-
-    private void CheckInput()
+    public void CheckInput()
     {
         CheckMoving();
         CheckRotate();

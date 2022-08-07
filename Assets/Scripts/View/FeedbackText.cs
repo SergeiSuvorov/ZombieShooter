@@ -9,20 +9,14 @@ public class FeedbackText: MonoBehaviour
 
     public void LogFeedback(string message)
 	{
-		if (_feedbackText == null)
-		{
-			return;
-		}
-		_feedbackText.text = message;
+		if (_feedbackText != null)
+			_feedbackText.text = message;
 	}
 
 	public void Clear()
 	{
-		if (_feedbackText == null)
-		{
-			return;
-		}
-		_feedbackText.text = string.Empty;
+		if (_feedbackText != null)
+			_feedbackText.text = string.Empty;
 	}
 
 }

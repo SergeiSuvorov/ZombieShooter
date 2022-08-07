@@ -7,7 +7,7 @@ namespace Controller
     public class MapController : BaseController
     {
         private MapView _view;
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = "Prefabs/GameMap0" };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.MapView };
 
         public MapController()
         {

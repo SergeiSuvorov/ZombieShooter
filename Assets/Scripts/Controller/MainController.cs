@@ -6,6 +6,8 @@ namespace Controller
 {
     public class MainController : BaseController
     {
+        private UpdateManager _updateManager;
+
         private MainMenuController _mainMenuController;
         private EnterInGameMenuController _enterInGameMenuController;
         private GameController _gameController;
@@ -15,12 +17,13 @@ namespace Controller
         private readonly Transform _placeForUi;
         private readonly ProfilePlayer _profilePlayer;
 
-        public MainController(Transform placeForUi, ProfilePlayer profilePlayer)
+        public MainController(Transform placeForUi, ProfilePlayer profilePlayer, UpdateManager updateManager)
         {
             _profilePlayer = profilePlayer;
             _placeForUi = placeForUi;
             OnChangeGameState(_profilePlayer.CurrentState.Value);
             profilePlayer.CurrentState.SubscribeOnChange(OnChangeGameState);
+            _updateManager = updateManager;
         }
 
         protected override void OnDispose()
@@ -50,7 +53,7 @@ namespace Controller
                     break;
                 case GameState.Game:
                     _currentController?.Dispose();
-                    _gameController = new GameController();
+                    _gameController = new GameController(_updateManager);
                     _currentController = _gameController;
                     Debug.Log("Start Game");
                     break;

@@ -280,6 +280,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 65cc40fe730d1604099eb2c75a94620c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _createAccountWindow: {fileID: 1625438495784880261}
+  _enterInGameView: {fileID: 5950021170492922915}
+  _signInWindow: {fileID: 5823298997680247378}
+  _feedbackLog: {fileID: 1887792403758058725}
   CreateAccountWindow: {fileID: 1625438495784880261}
   EnterInGameView: {fileID: 5950021170492922915}
   SignInWindow: {fileID: 5823298997680247378}

@@ -46,4 +46,4 @@ MonoBehaviour:
   _distance: 7
   _height: 3
   _centerOffset: {x: 0, y: 0, z: 0}
-  _smoothSpeed: 0.125
+  _smoothSpeed: 0.75

@@ -12,49 +12,44 @@ public class FollowCameraView: MonoBehaviour
     private Vector3 _centerOffset = Vector3.zero;
 
     [SerializeField]
-    private float _smoothSpeed = 0.125f;
+    private float _smoothSpeed = 0.75f;
 
-    Transform _cameraTransform;
-    Transform _targetTransform;
+    private Transform _cameraTransform;
+    private Transform _targetTransform;
 
-    bool isFollowing;
+    private bool _isFollowing;
 
-    Vector3 cameraOffset = Vector3.zero;
+    private Vector3 _cameraOffset = Vector3.zero;
 
     public void Init(Transform targetTransform)
     {
         _cameraTransform = Camera.main.transform;
         _targetTransform = targetTransform;
-        isFollowing = true;
+        _isFollowing = true;
 
         Cut();
     }
 
-    private void LateUpdate()
+    public void Follow()
     {
-        if (isFollowing)
-        {
-            Follow();
-        }
-    }
+        if (!_isFollowing)
+            return;
 
-    void Follow()
-    {
-        cameraOffset.z = -_distance;
-        cameraOffset.y = _height;
+        _cameraOffset.z = -_distance;
+        _cameraOffset.y = _height;
 
-        _cameraTransform.position = Vector3.Lerp(_cameraTransform.position, _targetTransform.position + _targetTransform.TransformVector(cameraOffset), _smoothSpeed * Time.deltaTime);
+        _cameraTransform.position = Vector3.Lerp(_cameraTransform.position, _targetTransform.position + _targetTransform.TransformVector(_cameraOffset), _smoothSpeed * Time.deltaTime);
 
         _cameraTransform.LookAt(_targetTransform.position + _centerOffset);
     }
 
 
-    void Cut()
+    public void Cut()
     {
-        cameraOffset.z = -_distance;
-        cameraOffset.y = _height;
+        _cameraOffset.z = -_distance;
+        _cameraOffset.y = _height;
 
-        _cameraTransform.position = _targetTransform.position + _targetTransform.TransformVector(cameraOffset);
+        _cameraTransform.position = _targetTransform.position + _targetTransform.TransformVector(_cameraOffset);
 
         _cameraTransform.LookAt(_targetTransform.position + _centerOffset);
     }
