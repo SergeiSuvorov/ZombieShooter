@@ -7,7 +7,7 @@ namespace Controller
     public class MainMenuController : BaseController
     {
         private MainMenuView  _view;
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = "Prefabs/MainMenu" };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.MainMenuView };
         private readonly ProfilePlayer _profilePlayer;
 
 

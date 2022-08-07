@@ -9,7 +9,7 @@ namespace Controller
 {
     public class EnterInGameMenuController : BaseController
     {
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = "Prefabs/EnterMenu" };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource =  ViewPathLists.AccountEnterMenuView };
         private readonly ProfilePlayer _profilePlayer;
 
         private EnterMenuView _view;

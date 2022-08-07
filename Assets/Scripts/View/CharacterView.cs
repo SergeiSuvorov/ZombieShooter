@@ -1,9 +1,14 @@
-﻿using UnityEngine;
+﻿using Tools;
+using UnityEngine;
 
 public class CharacterView : MonoBehaviour
 {
     [SerializeField]
     private Transform _lookTransform;
+    [SerializeField]
+    private float _turnSmooth;
+    [SerializeField]
+    private float _turnSpeed;
 
     private float _xMove;
     private float _zMove;
@@ -18,6 +23,9 @@ public class CharacterView : MonoBehaviour
     private float lookAngleX;
 
     private Rigidbody _rigidbody;
+
+    public bool IsActive { get; set; }
+
     public void Init()
     {
         _rigidbody = GetComponent<Rigidbody>();
@@ -35,7 +43,20 @@ public class CharacterView : MonoBehaviour
         _yRotate= rotateDif.y;
     }
 
-    private void FixedUpdate()
+    public void UpdateExecute()
+    {
+        smoothX = Mathf.SmoothDamp(smoothX, _xRotate, ref smoothXVelocity, _turnSmooth);
+        smoothY = Mathf.SmoothDamp(smoothY, _yRotate, ref smoothYVelocity, _turnSmooth);
+
+        lookAngleX += smoothX * _turnSpeed;
+        Quaternion targetRot = Quaternion.Euler(0, lookAngleX, 0);
+        transform.rotation = targetRot;
+
+        lookAngleY += smoothY * _turnSpeed;
+        Quaternion targetLookRot = Quaternion.Euler(-lookAngleY, lookAngleX, 0);
+        _lookTransform.rotation = targetLookRot;
+    }
+    public void FixUpdateExecute()
     {
         if (_xMove != 0f || _zMove != 0f)
         {
@@ -48,20 +69,5 @@ public class CharacterView : MonoBehaviour
             _zMove = 0f;
         }
     }
-
-    private void Update()
-    {
-        smoothX = Mathf.SmoothDamp(smoothX, _xRotate, ref smoothXVelocity, 0.1f);
-        smoothY = Mathf.SmoothDamp(smoothY, _yRotate, ref smoothYVelocity, 0.1f);
-
-        lookAngleX += smoothX*3;
-        Quaternion targetRot = Quaternion.Euler(0, lookAngleX, 0);
-        transform.rotation = targetRot;
-
-        lookAngleY += smoothY * 3;
-        Quaternion targetLookRot = Quaternion.Euler(-lookAngleY, lookAngleX, 0);
-        _lookTransform.rotation = targetLookRot;
-    }
-
 }
 

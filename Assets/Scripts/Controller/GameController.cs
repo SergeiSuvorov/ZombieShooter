@@ -9,9 +9,11 @@ namespace Controller
         private MapController _mapController;
         private InputController _inputController;
         private CharacterController _characterController;
-
-        public GameController()
+        private UpdateManager _updateManager;
+        public GameController(UpdateManager updateManager)
         {
+            _updateManager = updateManager;
+
             var moveDiff = new SubscriptionProperty<Vector2>();
             var rotateDiff = new SubscriptionProperty<Vector2>();
             var isFire = new SubscriptionProperty<bool>();
@@ -24,6 +26,20 @@ namespace Controller
 
             _characterController = new CharacterController(moveDiff, rotateDiff);
             AddController(_characterController);
+
+            _updateManager.UpdateList.Add(_inputController);
+            _updateManager.UpdateList.Add(_characterController);
+            _updateManager.LateUpdateList.Add(_characterController);
+            _updateManager.FixUpdateList.Add(_characterController);
+        }
+
+        protected override void OnDispose()
+        {
+            _updateManager.UpdateList.Remove(_inputController);
+            _updateManager.UpdateList.Remove(_characterController);
+            _updateManager.LateUpdateList.Remove(_characterController);
+            _updateManager.FixUpdateList.Remove(_characterController);
+            base.OnDispose();
         }
     }
 }

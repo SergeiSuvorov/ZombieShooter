@@ -4,14 +4,16 @@ using UnityEngine;
 
 namespace Controller
 {
-    public class CharacterController : BaseController
+    public class CharacterController : BaseController, IUpdateable, IFixUpdateable, ILateUpdateable
     {
         private CharacterView _view;
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = "Prefabs/Character0" };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.CharacterView };
         private SubscriptionProperty<Vector2> _moveDiff;
         private SubscriptionProperty<Vector2> _rotateDiff;
 
         private FollowCameraController _cameraController;
+
+        public bool IsActive { get; set; }
 
         public CharacterController(SubscriptionProperty<Vector2> moveDiff, SubscriptionProperty<Vector2> rotateDiff)
         {
@@ -27,6 +29,14 @@ namespace Controller
             _rotateDiff.SubscribeOnChange(Rotate);
         }
 
+        public CharacterView LoadView()
+        {
+            var objectView = Object.Instantiate(ResourceLoader.LoadPrefab(_viewPath));
+            AddGameObjects(objectView);
+
+            return objectView.GetComponent<CharacterView>();
+        }
+
         private void Rotate(Vector2 rotateDiff)
         {
             _view.SetRotate(rotateDiff);
@@ -37,20 +47,29 @@ namespace Controller
             _view.SetMove(moveDif);
         }
 
-        public CharacterView LoadView()
+        public void UpdateExecute()
         {
-            var objectView = Object.Instantiate(ResourceLoader.LoadPrefab(_viewPath));
-            AddGameObjects(objectView);
+            _view.UpdateExecute();
+        }
 
-            return objectView.GetComponent<CharacterView>();
+        public void FixUpdateExecute()
+        {
+            _view.FixUpdateExecute();
+        }
+
+        public void LateUpdateExecute()
+        {
+            _cameraController.LateUpdateExecute();
         }
 
         protected override void OnDispose()
         {
             _moveDiff.UnSubscriptionOnChange(Move);
             _rotateDiff.UnSubscriptionOnChange(Rotate);
+
             base.OnDispose();
         }
+
     }
 }
 

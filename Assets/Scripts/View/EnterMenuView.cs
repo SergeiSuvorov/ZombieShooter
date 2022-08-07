@@ -3,12 +3,24 @@
 
 public class EnterMenuView : MonoBehaviour
 {
-	public CreateAccountWindowView CreateAccountWindow;
+	[SerializeField]
+	private CreateAccountWindowView _createAccountWindow;
 
-	public EnterInGameFormView EnterInGameView;
+	[SerializeField]
+	private EnterInGameFormView _enterInGameView;
 
-	public SignInWindowView SignInWindow;
+	[SerializeField]
+	private SignInWindowView _signInWindow;
 
-	public FeedbackText FeedbackLog;
+	[SerializeField]
+	private FeedbackText _feedbackLog;
+
+	public CreateAccountWindowView CreateAccountWindow => _createAccountWindow;
+
+	public EnterInGameFormView EnterInGameView => _enterInGameView;
+
+	public SignInWindowView SignInWindow=> _signInWindow;
+
+	public FeedbackText FeedbackLog=> _feedbackLog;
 }
 
