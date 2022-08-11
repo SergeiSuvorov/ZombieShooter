@@ -4,9 +4,13 @@ using UnityEngine.UI;
 
 public class MainMenuView : MonoBehaviour
 {
-	public Button StartGameButton;
+    [SerializeField]
+    private Button StartGameButton;
 
-	public Action onStartButtonClick;
+    [SerializeField]
+    private FeedbackText _feedbackText;
+
+    public Action onStartButtonClick;
 
     private void Awake()
     {
@@ -23,5 +27,9 @@ public class MainMenuView : MonoBehaviour
         StartGameButton.onClick.RemoveAllListeners();
     }
 
+    public void LogFeedback(string message)
+    {
+        _feedbackText.LogFeedback(message);
+    }
 }
 

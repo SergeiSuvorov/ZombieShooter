@@ -1,4 +1,7 @@
-﻿using Tools;
+﻿using Photon.Pun;
+using Photon.Realtime;
+using System.Collections.Generic;
+using Tools;
 using UnityEngine;
 
 
@@ -6,41 +9,120 @@ namespace Controller
 {
     public class GameController : BaseController
     {
+        private static GameController instance;
+        public static GameController Instance=>instance;
+
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.CharacterView };
+
         private MapController _mapController;
         private InputController _inputController;
-        private CharacterController _characterController;
+        private OwnerPlayerCharacterController _ownerCharacterController;
+        private PhotonGameController _photonGameController;
+        private FollowCameraController _cameraController;
+        private Dictionary<Player, BasePlayerCharacterController> _playerControllerDictionary = new Dictionary<Player, BasePlayerCharacterController>();
+
+        private SubscriptionProperty<Vector2> _inputMoveDiff = new SubscriptionProperty<Vector2>();
+        private SubscriptionProperty<Vector2> _inputRotateDiff = new SubscriptionProperty<Vector2>();
+        private SubscriptionProperty<bool> _inputIsFire = new SubscriptionProperty<bool>();
+
         private UpdateManager _updateManager;
+
         public GameController(UpdateManager updateManager)
         {
-            _updateManager = updateManager;
+            if (Instance == null)
+                instance = this;
 
-            var moveDiff = new SubscriptionProperty<Vector2>();
-            var rotateDiff = new SubscriptionProperty<Vector2>();
-            var isFire = new SubscriptionProperty<bool>();
+
+            _updateManager = updateManager;
 
             _mapController = new MapController();
             AddController(_mapController);
 
-            _inputController = new InputController(moveDiff, rotateDiff, isFire);
+            _inputController = new InputController(_inputMoveDiff, _inputRotateDiff, _inputIsFire);
             AddController(_inputController);
 
-            _characterController = new CharacterController(moveDiff, rotateDiff);
-            AddController(_characterController);
+            _photonGameController = new PhotonGameController();
+            AddController(_photonGameController);
+
+            var characterView = LoadCharacterView();
+
+            _cameraController = new FollowCameraController(characterView.transform);
+            AddController(_cameraController);
 
             _updateManager.UpdateList.Add(_inputController);
-            _updateManager.UpdateList.Add(_characterController);
-            _updateManager.LateUpdateList.Add(_characterController);
-            _updateManager.FixUpdateList.Add(_characterController);
+            _updateManager.LateUpdateList.Add(_cameraController);
+
+            _photonGameController.onPlayerLeftRoom += OnPlayerLeftRoom;
+        }
+
+        public CharacterView LoadCharacterView()
+        {
+            var objectView = PhotonNetwork.Instantiate(_viewPath.PathResource, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+ 
+            return objectView.GetComponent<CharacterView>();
+        }
+
+        private void OnPlayerLeftRoom(Player other)
+        {
+            Debug.Log(other.NickName);
+            if (_playerControllerDictionary.ContainsKey(other))
+            {
+                var characterController = _playerControllerDictionary[other];
+                _updateManager.UpdateList.Remove(characterController);
+                _playerControllerDictionary.Remove(other);
+                characterController.Dispose();
+            }
+        }
+
+        public void RegisterPlayer(CharacterView view)
+        {
+            if (view.photonView.IsMine)
+            {
+                _ownerCharacterController = new OwnerPlayerCharacterController(_inputMoveDiff, _inputRotateDiff, view);
+                AddController(_ownerCharacterController);
+
+                _updateManager.UpdateList.Add(_ownerCharacterController);
+                _updateManager.FixUpdateList.Add(_ownerCharacterController);
+
+                _playerControllerDictionary.Add(view.photonView.Owner, _ownerCharacterController);
+            }
+            else
+            {
+                var characterController = new RemoutePlayerCharacterController(view);
+                AddController(characterController);
+
+                _updateManager.UpdateList.Add(characterController);
+                _playerControllerDictionary.Add(view.photonView.Owner, characterController);
+            }
         }
 
         protected override void OnDispose()
         {
+            var tKey = _playerControllerDictionary.Keys;
+
+            foreach(var key in tKey)
+            {
+                if(_playerControllerDictionary.ContainsKey(key))
+                {
+                    var characterController = _playerControllerDictionary[key];
+
+                    if (characterController != null)
+                    {
+                        _updateManager.UpdateList.Remove(characterController);
+                    }
+                }
+            }
+
+            _updateManager.FixUpdateList.Remove(_ownerCharacterController);
+
             _updateManager.UpdateList.Remove(_inputController);
-            _updateManager.UpdateList.Remove(_characterController);
-            _updateManager.LateUpdateList.Remove(_characterController);
-            _updateManager.FixUpdateList.Remove(_characterController);
+            _updateManager.LateUpdateList.Remove(_cameraController);
+            _photonGameController.onPlayerLeftRoom -= OnPlayerLeftRoom;
+
             base.OnDispose();
         }
     }
 }
+
+
 

@@ -283,6 +283,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StartGameButton: {fileID: 3171995484747963559}
+  _feedbackText: {fileID: 761861141682887704}
 --- !u!1 &4601662000123012330
 GameObject:
   m_ObjectHideFlags: 0
