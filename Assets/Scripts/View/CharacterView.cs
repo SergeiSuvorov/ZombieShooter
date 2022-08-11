@@ -1,7 +1,10 @@
-﻿using Tools;
+﻿using Controller;
+using Photon.Pun;
+using System;
+using Tools;
 using UnityEngine;
 
-public class CharacterView : MonoBehaviour
+public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable
 {
     [SerializeField]
     private Transform _lookTransform;
@@ -22,22 +25,31 @@ public class CharacterView : MonoBehaviour
     private float lookAngleY;
     private float lookAngleX;
 
+    [SerializeField]
     private Rigidbody _rigidbody;
 
     public bool IsActive { get; set; }
 
+    public Action<PhotonStream, PhotonMessageInfo> onPhotonSerializeView;
+
+    private void Awake()
+    {
+        Debug.Log($"Awake { GameController.Instance!=null}");
+
+       GameController.Instance?.RegisterPlayer(this);
+    }
     public void Init()
     {
-        _rigidbody = GetComponent<Rigidbody>();
+        gameObject.name = photonView.Owner.NickName;
     }
 
-    public void SetMove(Vector2 moveDif)
+    public void SetMove(Vector3 moveDif)
     {
         _xMove = moveDif.x;
-        _zMove = moveDif.y; 
+        _zMove = moveDif.y;
     }
 
-    public void SetRotate(Vector2 rotateDif)
+    public void SetRotate(Vector3 rotateDif)
     {
         _xRotate= rotateDif.x;
         _yRotate= rotateDif.y;
@@ -64,10 +76,21 @@ public class CharacterView : MonoBehaviour
             movement += transform.right * _zMove * Time.fixedDeltaTime;
 
             _rigidbody.MovePosition(_rigidbody.position + movement);
-
+           
             _xMove = 0f;
             _zMove = 0f;
         }
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        onPhotonSerializeView?.Invoke(stream, info);
+    }
+
+    public void SetWordPositionAndRotation(Vector3 position, Quaternion quaternion)
+    {
+        transform.position = position;
+        transform.rotation = quaternion;
     }
 }
 

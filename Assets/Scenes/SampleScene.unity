@@ -409,6 +409,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _placeForUi: {fileID: 999385551}
+  _updateManager: {fileID: 999385553}
 --- !u!114 &999385553
 MonoBehaviour:
   m_ObjectHideFlags: 0
