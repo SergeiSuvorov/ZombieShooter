@@ -6,4 +6,8 @@
     public const string InputView = "Prefabs/GameInputView";
     public const string CharacterView = "Prefabs/Character0";
     public const string FollowCameraView = "Prefabs/FollowCameraView";
+    public const string WeaponView = "Prefabs/Weapon0";
+    public const string ZombieView = "Prefabs/Zombie0";
+
+    public const string FollowCameraModel = "Models/FollowCameraModel";
 }
