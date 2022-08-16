@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using Model;
+using Photon.Pun;
 using Photon.Realtime;
 using System.Collections.Generic;
 using Tools;
@@ -26,14 +27,15 @@ namespace Controller
         private SubscriptionProperty<bool> _inputIsFire = new SubscriptionProperty<bool>();
 
         private UpdateManager _updateManager;
-
-        public GameController(UpdateManager updateManager)
+        private ProfilePlayer _profilePlayer;
+        public GameController(UpdateManager updateManager, ProfilePlayer profilePlayer)
         {
             if (Instance == null)
                 instance = this;
 
 
             _updateManager = updateManager;
+            _profilePlayer = profilePlayer;
 
             _mapController = new MapController();
             AddController(_mapController);
@@ -78,7 +80,8 @@ namespace Controller
         {
             if (view.photonView.IsMine)
             {
-                _ownerCharacterController = new OwnerPlayerCharacterController(_inputMoveDiff, _inputRotateDiff, view);
+                var debugPlayerModel = new PlayerModel(_profilePlayer.UserName, 100);
+                _ownerCharacterController = new OwnerPlayerCharacterController(_inputMoveDiff, _inputRotateDiff, _inputIsFire, view, debugPlayerModel);
                 AddController(_ownerCharacterController);
 
                 _updateManager.UpdateList.Add(_ownerCharacterController);
@@ -88,10 +91,12 @@ namespace Controller
             }
             else
             {
-                var characterController = new RemoutePlayerCharacterController(view);
+                var characterController = new RemotePlayerCharacterController(view);
                 AddController(characterController);
 
                 _updateManager.UpdateList.Add(characterController);
+                _updateManager.FixUpdateList.Add(characterController);
+
                 _playerControllerDictionary.Add(view.photonView.Owner, characterController);
             }
         }
@@ -109,11 +114,12 @@ namespace Controller
                     if (characterController != null)
                     {
                         _updateManager.UpdateList.Remove(characterController);
+                        _updateManager.FixUpdateList.Remove(characterController);
                     }
                 }
             }
 
-            _updateManager.FixUpdateList.Remove(_ownerCharacterController);
+            //_updateManager.FixUpdateList.Remove(_ownerCharacterController);
 
             _updateManager.UpdateList.Remove(_inputController);
             _updateManager.LateUpdateList.Remove(_cameraController);

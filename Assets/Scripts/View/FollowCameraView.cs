@@ -2,17 +2,11 @@
 
 public class FollowCameraView: MonoBehaviour
 {
-    [SerializeField]
-    private float _distance = 7.0f;
+    private float _distance;
 
-    [SerializeField]
-    private float _height = 3.0f;
+    private float _height;
 
-    [SerializeField]
-    private Vector3 _centerOffset = Vector3.zero;
-
-    [SerializeField]
-    private float _smoothSpeed = 0.75f;
+    private float _smoothSpeed;
 
     private Transform _cameraTransform;
     private Transform _targetTransform;
@@ -21,10 +15,16 @@ public class FollowCameraView: MonoBehaviour
 
     private Vector3 _cameraOffset = Vector3.zero;
 
-    public void Init(Transform targetTransform)
+
+    public void Init(Transform targetTransform, float distance, float height, float smoothSpeed)
     {
         _cameraTransform = Camera.main.transform;
         _targetTransform = targetTransform;
+
+        _distance=distance;
+        _height=height; 
+        _smoothSpeed=smoothSpeed;
+
         _isFollowing = true;
 
         Cut();
@@ -40,7 +40,7 @@ public class FollowCameraView: MonoBehaviour
 
         _cameraTransform.position = Vector3.Lerp(_cameraTransform.position, _targetTransform.position + _targetTransform.TransformVector(_cameraOffset), _smoothSpeed * Time.deltaTime);
 
-        _cameraTransform.LookAt(_targetTransform.position + _centerOffset);
+        _cameraTransform.LookAt(_targetTransform.position /*+ _centerOffset*/);
     }
 
 
@@ -51,7 +51,7 @@ public class FollowCameraView: MonoBehaviour
 
         _cameraTransform.position = _targetTransform.position + _targetTransform.TransformVector(_cameraOffset);
 
-        _cameraTransform.LookAt(_targetTransform.position + _centerOffset);
+        _cameraTransform.LookAt(_targetTransform.position /*+ _centerOffset*/);
     }
 }
 

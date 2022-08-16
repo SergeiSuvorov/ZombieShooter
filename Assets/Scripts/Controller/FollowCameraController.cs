@@ -1,4 +1,5 @@
-﻿using Tools;
+﻿using Model;
+using Tools;
 using UnityEngine;
 
 
@@ -8,13 +9,27 @@ namespace Controller
     {
         private FollowCameraView _view;
         private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.FollowCameraView };
-
+        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.FollowCameraModel };
         public bool IsActive { get; set; }
 
         public FollowCameraController(Transform characterTransform)
         {
             _view = LoadView();
-            _view.Init(characterTransform);
+            var model = LoadModel();
+            if (model != null)
+            {
+                var distance = model.Distance;
+                var height = model.Height;
+                var smoothSpeed = model.SmoothSpeed;
+                _view.Init(characterTransform, distance, height, smoothSpeed);
+            }
+        }
+
+        private FollowCameraModel LoadModel()
+        {
+            var objectModel = Object.Instantiate(ResourceLoader.LoadScriptable(_modelPath));
+
+            return (objectModel as FollowCameraModel);
         }
 
         private FollowCameraView LoadView()

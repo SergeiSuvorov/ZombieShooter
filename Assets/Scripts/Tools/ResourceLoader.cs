@@ -13,6 +13,11 @@ namespace Tools
         {
             return Resources.Load<GameObject>(path.PathResource);
         }
+
+        public static ScriptableObject LoadScriptable(ResourcePath path)
+        {
+            return Resources.Load<ScriptableObject>(path.PathResource);
+        }
     }
 }
 

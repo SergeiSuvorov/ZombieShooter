@@ -1,11 +1,11 @@
 ﻿using Controller;
 using Photon.Pun;
 using System;
-using Tools;
 using UnityEngine;
 
-public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable
+public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable
 {
+    
     [SerializeField]
     private Transform _lookTransformRoot;
     [SerializeField]
@@ -24,64 +24,60 @@ public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable
     private float _yRotate;
 
     private float smoothX;
-    private float smoothY;
     private float smoothXVelocity;
-    private float smoothYVelocity;
-    private float lookAngleY;
-    private float lookAngleX;
+
+    private float lookAngleX=0;
 
     public Transform WeaponTransformRoot => _weaponTransformRoot;
     public bool IsActive { get; set; }
 
     public Action<PhotonStream, PhotonMessageInfo> onPhotonSerializeView;
 
-    private void Awake()
-    {
-        Debug.Log($"Awake { GameController.Instance!=null}");
-
-       GameController.Instance?.RegisterPlayer(this);
-    }
-    public void Init()
-    {
-        gameObject.name = photonView.Owner.NickName;
-    }
+    //private void Awake()
+    //{
+    //    GameController.Instance?.RegisterEnemy(this);
+    //}
 
     public void SetMove(Vector3 moveDif)
     {
         _xMove = moveDif.x;
         _zMove = moveDif.y;
+
+        if (_xMove < 0)
+            _xMove *= -1;
     }
 
     public void SetRotate(Vector3 rotateDif)
     {
         _xRotate = rotateDif.x;
-        _yRotate= rotateDif.y;
+        _yRotate = rotateDif.y;
     }
 
     public void UpdateExecute()
     {
-        smoothX = Mathf.SmoothDamp(smoothX, _xRotate, ref smoothXVelocity, _turnSmooth);
-        smoothY = Mathf.SmoothDamp(smoothY, _yRotate, ref smoothYVelocity, _turnSmooth);
+        if (_xRotate != 0f || _yRotate != 0f)
+        {
+            smoothX = Mathf.SmoothDamp(smoothX, _xRotate, ref smoothXVelocity, _turnSmooth);
 
-        lookAngleX += smoothX * _turnSpeed;
-        Quaternion targetRot = Quaternion.Euler(0, lookAngleX, 0);
-        transform.rotation = targetRot;
+            lookAngleX += smoothX * _turnSpeed;
 
-        lookAngleY += smoothY * _turnSpeed;
-        Quaternion targetLookRot = Quaternion.Euler(-lookAngleY, lookAngleX, 0);
-        _lookTransformRoot.rotation = targetLookRot;
+            Quaternion targetRot = Quaternion.Euler(0, lookAngleX, 0);
+            transform.rotation = targetRot;
 
-        //_weaponTransformRoot.rotation = Quaternion.Euler(lookAngleY, lookAngleX, 0);
+            _xRotate = 0;
+            _yRotate = 0;
+        }
     }
     public void FixUpdateExecute()
     {
         if (_xMove != 0f || _zMove != 0f)
         {
+
             var movement = transform.forward * _xMove * Time.fixedDeltaTime;
             movement += transform.right * _zMove * Time.fixedDeltaTime;
 
             _rigidbody.MovePosition(_rigidbody.position + movement);
-           
+
             _xMove = 0f;
             _zMove = 0f;
         }

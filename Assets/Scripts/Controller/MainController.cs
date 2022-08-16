@@ -53,7 +53,7 @@ namespace Controller
                     break;
                 case GameState.Game:
                     _currentController?.Dispose();
-                    _gameController = new GameController(_updateManager);
+                    _gameController = new GameController(_updateManager,_profilePlayer);
                     _currentController = _gameController;
                     Debug.Log("Start Game");
                     break;
