@@ -2,85 +2,32 @@
 using Photon.Pun;
 using System;
 using UnityEngine;
+using Pathfinding;
 
 public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable
 {
-    
-    [SerializeField]
-    private Transform _lookTransformRoot;
-    [SerializeField]
-    private Transform _weaponTransformRoot;
-    [SerializeField]
-    private float _turnSmooth;
-    [SerializeField]
-    private float _turnSpeed;
     [SerializeField]
     private Rigidbody _rigidbody;
+    [SerializeField]
+    private AIPath _aIPath;
+    [SerializeField]
+    private Seeker _seeker;
 
+    public Transform Transform => transform;
+    public Rigidbody Rigidbody => _rigidbody;
 
-    private float _xMove;
-    private float _zMove;
-    private float _xRotate;
-    private float _yRotate;
-
-    private float smoothX;
-    private float smoothXVelocity;
-
-    private float lookAngleX=0;
-
-    public Transform WeaponTransformRoot => _weaponTransformRoot;
-    public bool IsActive { get; set; }
+    public Seeker Seeker => _seeker;
 
     public Action<PhotonStream, PhotonMessageInfo> onPhotonSerializeView;
 
-    //private void Awake()
-    //{
-    //    GameController.Instance?.RegisterEnemy(this);
-    //}
-
-    public void SetMove(Vector3 moveDif)
+    private void Awake()
     {
-        _xMove = moveDif.x;
-        _zMove = moveDif.y;
-
-        if (_xMove < 0)
-            _xMove *= -1;
+        GameController.Instance?.RegisterEnemy(this);
+        _aIPath.enabled = false;
     }
-
-    public void SetRotate(Vector3 rotateDif)
+    public void Init()
     {
-        _xRotate = rotateDif.x;
-        _yRotate = rotateDif.y;
-    }
-
-    public void UpdateExecute()
-    {
-        if (_xRotate != 0f || _yRotate != 0f)
-        {
-            smoothX = Mathf.SmoothDamp(smoothX, _xRotate, ref smoothXVelocity, _turnSmooth);
-
-            lookAngleX += smoothX * _turnSpeed;
-
-            Quaternion targetRot = Quaternion.Euler(0, lookAngleX, 0);
-            transform.rotation = targetRot;
-
-            _xRotate = 0;
-            _yRotate = 0;
-        }
-    }
-    public void FixUpdateExecute()
-    {
-        if (_xMove != 0f || _zMove != 0f)
-        {
-
-            var movement = transform.forward * _xMove * Time.fixedDeltaTime;
-            movement += transform.right * _zMove * Time.fixedDeltaTime;
-
-            _rigidbody.MovePosition(_rigidbody.position + movement);
-
-            _xMove = 0f;
-            _zMove = 0f;
-        }
+        _aIPath.enabled = true;
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

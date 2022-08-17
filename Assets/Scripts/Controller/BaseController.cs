@@ -37,9 +37,19 @@ namespace Controller
             _baseControllers.Add(baseController);
         }
 
+        protected void RemoveController(BaseController baseController)
+        {
+            _baseControllers.Remove(baseController);
+        }
+
         protected void AddGameObjects(GameObject gameObject)
         {
             _gameObjects.Add(gameObject);
+        }
+
+        protected void RemoveGameObjects(GameObject gameObject)
+        {
+            _gameObjects.Remove(gameObject);
         }
 
         protected virtual void OnDispose()
