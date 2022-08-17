@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Controller
 {
-    public class RemotePhotonCharacterSynchronizeController : BaseController, IPhotonCharacterController
+    public class RemotePhotonCharacterSynchronizeController : BasePhotonPlayerCharacterController
     {
         private CharacterView _view;
         private Rigidbody _rigidbody;
@@ -39,7 +39,7 @@ namespace Controller
             _view.onPhotonSerializeView -= OnPhotonSerializeView;
         }
 
-        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        public override void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
             if (stream.IsReading)
             {
@@ -66,7 +66,7 @@ namespace Controller
             }
         }
 
-        public void SynhronizeExecute()
+        public override void SynhronizeExecute()
         {
             _rigidbody.position = Vector3.MoveTowards(_rigidbody.position, _networkPosition, _distance *  (1.0f / PhotonNetwork.SerializationRate));
             _rigidbody.rotation = Quaternion.RotateTowards(_rigidbody.rotation, _networkRotation, _angle *  (1.0f / PhotonNetwork.SerializationRate));

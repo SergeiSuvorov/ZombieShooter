@@ -15,13 +15,13 @@ namespace Controller
         {
             InitView(view);
 
-            var weaponView = LoadWeaponView(view.WeaponTransformRoot);
-            _weaponController = new WeaponController(weaponView, isFire);
+            _weaponController = new WeaponController(view.WeaponTransformRoot, isFire);
             AddController(_weaponController);
 
             _isFire = isFire;
             _playerModel = playerModel;
             _photonCharacterController = new OwnerPhotonCharacterSynchronizeController(view, isFire);
+            AddController(_photonCharacterController);
 
             _moveDiff = moveDiff;
             _moveDiff.SubscribeOnChange(Move);
@@ -43,6 +43,7 @@ namespace Controller
         {
             _view.UpdateExecute();
             _weaponController.Aiming();
+            _weaponController.Timer();
 
             if (_isFire.Value)
                 _weaponController.CheckReadyToAction();
