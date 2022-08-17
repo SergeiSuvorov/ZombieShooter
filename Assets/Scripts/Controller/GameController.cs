@@ -28,6 +28,8 @@ namespace Controller
 
         private UpdateManager _updateManager;
         private ProfilePlayer _profilePlayer;
+
+        private EnemyManager _enemyManager;
         public GameController(UpdateManager updateManager, ProfilePlayer profilePlayer)
         {
             if (Instance == null)
@@ -51,10 +53,17 @@ namespace Controller
             _cameraController = new FollowCameraController(characterView.transform);
             AddController(_cameraController);
 
+            _enemyManager = new EnemyManager(_updateManager, characterView.transform);
             _updateManager.UpdateList.Add(_inputController);
             _updateManager.LateUpdateList.Add(_cameraController);
 
             _photonGameController.onPlayerLeftRoom += OnPlayerLeftRoom;
+            _photonGameController.onMasterClientSwitched += OnMasterClientSwitched;
+        }
+
+        private void OnMasterClientSwitched(Player newMasterClient)
+        {
+            _enemyManager.OnMasterClientSwitched();
         }
 
         public CharacterView LoadCharacterView()
@@ -75,7 +84,14 @@ namespace Controller
                 characterController.Dispose();
             }
         }
+        public void RegisterEnemy(ZombieView view)
+        {
+            if (!PhotonNetwork.IsMasterClient)
+            {
+                _enemyManager.RegisterEnemy(view);
+            }
 
+        }
         public void RegisterPlayer(CharacterView view)
         {
             if (view.photonView.IsMine)
@@ -118,8 +134,6 @@ namespace Controller
                     }
                 }
             }
-
-            //_updateManager.FixUpdateList.Remove(_ownerCharacterController);
 
             _updateManager.UpdateList.Remove(_inputController);
             _updateManager.LateUpdateList.Remove(_cameraController);

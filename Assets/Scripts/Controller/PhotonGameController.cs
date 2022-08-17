@@ -11,6 +11,7 @@ namespace Controller
         public Action onPhotonDisconnect;
         public Action<Player> onPlayerEnteredRoom;
         public Action<Player> onPlayerLeftRoom;
+        public Action<Player> onMasterClientSwitched;
 
         public void LeftRoom()
         {
@@ -32,6 +33,12 @@ namespace Controller
         {
             onPhotonDisconnect?.Invoke();
             PhotonNetwork.Disconnect();
+        }
+
+        public override void OnMasterClientSwitched(Player newMasterClient)
+        {
+            Debug.Log("New Master Client " + newMasterClient.NickName);
+            onMasterClientSwitched?.Invoke(newMasterClient);
         }
     }
 }
