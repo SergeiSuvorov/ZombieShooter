@@ -1,7 +1,6 @@
 ﻿using Controller;
 using Photon.Pun;
 using System;
-using Tools;
 using UnityEngine;
 
 public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable

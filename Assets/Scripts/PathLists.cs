@@ -11,4 +11,5 @@
 
     public const string FollowCameraModel = "Models/FollowCameraModel";
     public const string AIZombiModel = "Models/StalkerZombi";
+    public const string WeaponModel = "Models/WeaponModel0";
 }

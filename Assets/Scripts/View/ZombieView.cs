@@ -4,7 +4,7 @@ using System;
 using UnityEngine;
 using Pathfinding;
 
-public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable
+public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable, IDamageReceiver
 {
     [SerializeField]
     private Rigidbody _rigidbody;
@@ -19,6 +19,7 @@ public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable
     public Seeker Seeker => _seeker;
 
     public Action<PhotonStream, PhotonMessageInfo> onPhotonSerializeView;
+    public Action onGetDamage;
 
     private void Awake()
     {
@@ -39,6 +40,11 @@ public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable
     {
         transform.position = position;
         transform.rotation = quaternion;
+    }
+
+    public void GetDamage()
+    {
+        onGetDamage?.Invoke();
     }
 }
 

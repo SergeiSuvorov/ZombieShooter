@@ -80,6 +80,7 @@ namespace Controller
             {
                 var characterController = _playerControllerDictionary[other];
                 _updateManager.UpdateList.Remove(characterController);
+                _updateManager.FixUpdateList.Remove(characterController);
                 _playerControllerDictionary.Remove(other);
                 characterController.Dispose();
             }

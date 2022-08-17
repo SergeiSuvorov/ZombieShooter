@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Controller
 {
-    public class OwnerPhotonCharacterSynchronizeController : BaseController, IPhotonCharacterController
+    public class OwnerPhotonCharacterSynchronizeController : BasePhotonPlayerCharacterController
     {
         private CharacterView _view;
         private Transform _transform;
@@ -30,7 +30,7 @@ namespace Controller
             _view.onPhotonSerializeView -= OnPhotonSerializeView;
         }
 
-        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        public override void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
             if (stream.IsWriting)
             {
@@ -42,7 +42,7 @@ namespace Controller
             }
         }
 
-        public void SynhronizeExecute()
+        public override void SynhronizeExecute()
         {
         }
     }

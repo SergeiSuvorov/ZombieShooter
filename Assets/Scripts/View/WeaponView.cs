@@ -17,7 +17,13 @@ public class WeaponView : MonoBehaviour
 
     public void Action()
     {
-        Debug.Log("Action Pew - pew");
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit))
+        {
+            var damageReceiver = hit.transform.GetComponent<IDamageReceiver>();
+            if (damageReceiver != null)
+                damageReceiver.GetDamage();
+        }
     }
     public void SetActiveVisualEffect(bool setActive)
     {

@@ -232,9 +232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11936774febd90043a95bded206fbdf4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _weaponTransformRoot: {fileID: 4989582678754337789}
-  _turnSmooth: 1
-  _turnSpeed: 1
   _rigidbody: {fileID: 7433756902805623202}
   _aIPath: {fileID: 6961165674166866311}
   _seeker: {fileID: 8400921671692208023}

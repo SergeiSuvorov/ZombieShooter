@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using System;
 using Tools;
 using UnityEngine;
 
@@ -14,10 +15,17 @@ namespace Controller
         public MasterClientZombiController(Transform targetTransform)
         {
             _view = LoadZombiView();
-            AddGameObjects(_view.gameObject);
-            _view.onPhotonSerializeView += OnPhotonSerializeView;
             _rigidbody = _view.Rigidbody;
-            _stalkerAIController = new StalkerAIController(_view, targetTransform);
+            _view.onPhotonSerializeView += OnPhotonSerializeView;
+            _view.onGetDamage += GetDamage;
+            AddGameObjects(_view.gameObject);
+            //_stalkerAIController = new StalkerAIController(_view, targetTransform);
+
+        }
+
+        private void GetDamage()
+        {
+            Debug.Log("Get Damage");
         }
 
         public MasterClientZombiController(ZombieControllerBase removeZombie, Transform targetTransform)
@@ -52,7 +60,7 @@ namespace Controller
         {
             if (!PhotonNetwork.IsMasterClient)
                 return;
-            _stalkerAIController.FixUpdateExecute();
+            //_stalkerAIController.FixUpdateExecute();
         }
     }
 }
