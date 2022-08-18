@@ -12,6 +12,8 @@ namespace Model
 
         public string UserID => _userAccountInfo.PlayFabId;
         public string UserName => _userAccountInfo.Username;
+
+        public string LastPhotonRoom=string.Empty;
         public ProfilePlayer()
         {
             CurrentState = new SubscriptionProperty<GameState>();

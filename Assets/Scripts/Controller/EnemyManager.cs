@@ -67,11 +67,14 @@ namespace Controller
         {
             if (PhotonNetwork.IsMasterClient)
             {
-                var zombiController = new MasterClientZombiController(_zombieController,_characterTransform);
+                var zombieController = new MasterClientZombiController(_zombieController,_characterTransform);
                 RemoveController(_zombieController);
-                _zombieController = zombiController;
+                _zombieController.Dispose();
+                _updateManager.FixUpdateList.Remove(_zombieController);
+
+                _zombieController = zombieController;
                 AddController(_zombieController);
-                _updateManager.FixUpdateList.Add(zombiController);
+                _updateManager.FixUpdateList.Add(zombieController);
             }
         }
 
@@ -92,6 +95,7 @@ namespace Controller
                 Debug.Log("ResurrectTime");
             }                
         }
+
     }
 }
 

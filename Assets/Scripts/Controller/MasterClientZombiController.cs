@@ -47,29 +47,35 @@ namespace Controller
             {
                 _isLife = false;
                 _stalkerAIController.IsActive = false;
-            }
 
+                if(PhotonNetwork.CurrentRoom.PlayerCount==1)
+                    Died();
+            }
         }
 
         public MasterClientZombiController(ZombieControllerBase removeZombie, Transform targetTransform)
         {
             _view = removeZombie.View;
             removeZombie.RemoveGameObjectFromList();
-            removeZombie.Dispose();
-            AddGameObjects(_view.gameObject);
+
+            _view.onCollisionStay += SetDamage;
+            _view.onPhotonSerializeView += OnPhotonSerializeView;
             _view.onGetDamage += GetDamage;
+            _rigidbody = _view.Rigidbody;
+            AddGameObjects(_view.gameObject);
 
             _model = LoadZombiModel();
             _currentHealth = _model.Health;
             _isLife = true;
-
-            _view.onPhotonSerializeView += OnPhotonSerializeView;
 
             _stalkerAIController = new StalkerAIController(_view, targetTransform);
         }
 
         private void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
         {
+            if (_view == null)
+                return;
+
             if (stream.IsWriting)
             {
                 stream.SendNext(_rigidbody.position);
@@ -127,6 +133,14 @@ namespace Controller
             _isAttack = true;
             _stalkerAIController.IsActive = false;
             _currentCoolDawnTime = _model.CoolDawnTime;
+        }
+
+        protected override void OnDispose()
+        {
+            _view.onPhotonSerializeView -= OnPhotonSerializeView;
+            _view.onGetDamage -= GetDamage;
+            _view.onCollisionStay -= SetDamage;
+            base.OnDispose();
         }
     }
 }

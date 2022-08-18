@@ -1,6 +1,7 @@
 ﻿using Model;
 using Photon.Pun;
 using Photon.Realtime;
+using System;
 using System.Collections.Generic;
 using Tools;
 using UnityEngine;
@@ -10,8 +11,8 @@ namespace Controller
 {
     public class GameController : BaseController
     {
-        private static GameController instance;
-        public static GameController Instance=>instance;
+        private static GameController _instance;
+        public static GameController Instance=>_instance;
 
         private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.CharacterView };
 
@@ -33,7 +34,7 @@ namespace Controller
         public GameController(UpdateManager updateManager, ProfilePlayer profilePlayer)
         {
             if (Instance == null)
-                instance = this;
+                _instance = this;
 
 
             _updateManager = updateManager;
@@ -54,6 +55,7 @@ namespace Controller
             AddController(_cameraController);
 
             _enemyManager = new EnemyManager(_updateManager, characterView.transform);
+            AddController(_enemyManager);
             _updateManager.UpdateList.Add(_inputController);
             _updateManager.LateUpdateList.Add(_cameraController);
 
@@ -99,6 +101,7 @@ namespace Controller
             {
                 var debugPlayerModel = new PlayerModel(_profilePlayer.UserName, 100);
                 _ownerCharacterController = new OwnerPlayerCharacterController(_inputMoveDiff, _inputRotateDiff, _inputIsFire, view, debugPlayerModel);
+                _ownerCharacterController.onPlayerDied += OnPlayerDead;
                 AddController(_ownerCharacterController);
 
                 _updateManager.UpdateList.Add(_ownerCharacterController);
@@ -116,6 +119,15 @@ namespace Controller
 
                 _playerControllerDictionary.Add(view.photonView.Owner, characterController);
             }
+        }
+
+        private void OnPlayerDead()
+        {
+            Debug.Log("Player is deads");
+            _profilePlayer.LastPhotonRoom = PhotonNetwork.CurrentRoom.Name;
+            PhotonNetwork.Disconnect();
+
+            _profilePlayer.CurrentState.Value = GameState.Menu;
         }
 
         protected override void OnDispose()
@@ -136,10 +148,11 @@ namespace Controller
                 }
             }
 
+            _playerControllerDictionary.Clear();
             _updateManager.UpdateList.Remove(_inputController);
             _updateManager.LateUpdateList.Remove(_cameraController);
             _photonGameController.onPlayerLeftRoom -= OnPlayerLeftRoom;
-
+            _instance = null;
             base.OnDispose();
         }
     }

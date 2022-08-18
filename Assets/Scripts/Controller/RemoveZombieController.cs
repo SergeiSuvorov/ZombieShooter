@@ -81,7 +81,14 @@ namespace Controller
         {
             damageReceiver.GetDamage(0);
         }
-    }
+
+        protected override void OnDispose()
+        {
+            _view.onPhotonSerializeView -= OnPhotonSerializeView;
+            _view.onCollisionStay -= SetDamage;
+            base.OnDispose();
+        }
+    } 
 }
 
 

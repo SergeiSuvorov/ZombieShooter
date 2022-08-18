@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using Model;
+using Photon.Pun;
 using Photon.Realtime;
 using System;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace Controller
         private string _gameVersion = "1";
         private byte _maxPlayersPerRoom;
 
-        public PhotonGameConnectionController(byte maxPlayersPerRoom)
+		public PhotonGameConnectionController(byte maxPlayersPerRoom)
         {
             PhotonNetwork.AutomaticallySyncScene = true;
 			_maxPlayersPerRoom = maxPlayersPerRoom;
@@ -32,6 +33,7 @@ namespace Controller
 
             if (PhotonNetwork.IsConnected)
             {
+				Debug.Log("IsConnected Before");
                 PhotonNetwork.JoinRandomRoom();
             }
             else
@@ -54,7 +56,7 @@ namespace Controller
 			if (_isConnecting)
 			{
 				onPhotonConnect?.Invoke("Connect to Photon");
-				PhotonNetwork.JoinRandomRoom();
+				PhotonNetwork.JoinRandomOrCreateRoom();
 			}
 		}
 
@@ -63,6 +65,11 @@ namespace Controller
 			onPhotonRandomRoomJoinFailed?.Invoke(message);
 
 			PhotonNetwork.CreateRoom(null, new RoomOptions { MaxPlayers = _maxPlayersPerRoom });
+		}
+
+		public override void OnJoinRoomFailed(short returnCode, string message)
+		{
+			PhotonNetwork.JoinRandomOrCreateRoom();
 		}
 
 		public override void OnDisconnected(DisconnectCause cause)
