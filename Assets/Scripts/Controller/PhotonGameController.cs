@@ -20,6 +20,7 @@ namespace Controller
         public override void OnPlayerEnteredRoom(Player other)
         {
             Debug.Log("OnPlayerEnteredRoom() " + other.NickName);
+            Debug.Log("IsMaster " + other.IsMasterClient);
             onPlayerEnteredRoom?.Invoke(other);
         }
 

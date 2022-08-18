@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: ZombieModel
   m_EditorClassIdentifier: 
   _health: 20
-  _damage: 10
+  _damage: 20
   _coolDawnTime: 3

@@ -101,7 +101,6 @@ public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable, IDamageR
 
     public void GetDamage(int damage)
     {
-        Debug.Log("GettingDamage" + gameObject.name);
         onGetDamage?.Invoke(damage);
     }
 }

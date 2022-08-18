@@ -58,7 +58,6 @@ namespace Controller
                     Debug.Log("Start Game");
                     break;
                 default:
-                    //_mainMenuController?.Dispose();
                     break;
             }
         }

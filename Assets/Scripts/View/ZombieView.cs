@@ -56,7 +56,6 @@ public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable, IDamageRecei
         var damageReceiver = (collision.gameObject.GetComponent<CharacterView>());
         if (damageReceiver != null)
         {
-            Debug.Log(collision.gameObject.name);
             onCollisionStay?.Invoke(damageReceiver);
         }
     }
