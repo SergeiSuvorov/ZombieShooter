@@ -3,7 +3,7 @@
 namespace Model
 {
     [CreateAssetMenu(fileName = "Data", menuName = "Models/AIZombiModel")]
-    public class AIZombiModelConfig : ScriptableObject
+    public class AIZombieModelConfig : ScriptableObject
     {
         [SerializeField]
         private float _speed;

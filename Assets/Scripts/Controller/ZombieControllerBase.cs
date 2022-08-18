@@ -1,24 +1,35 @@
 ﻿using System;
 using Tools;
-
+using UnityEngine;
 
 namespace Controller
 {
-    public class ZombieControllerBase : BaseController, IFixUpdateable
+    abstract public class ZombieControllerBase : BaseController, IFixUpdateable
     {
         protected ZombieView _view;
+        protected bool _isLife;
+        protected bool _isAttack;
         public ZombieView View => _view;
-
-        public bool IsActive => throw new NotImplementedException();
+        public Action<ZombieControllerBase> onZombieDie;
+        public bool IsActive { get; set; }
 
         public void RemoveGameObjectFromList()
         {
             RemoveGameObjects(_view.gameObject);
         }
 
-        public virtual void FixUpdateExecute()
+        protected void Died()
         {
+            Debug.Log("Die");
+            onZombieDie?.Invoke(this);
+            _view.gameObject.SetActive(false);
         }
+
+        abstract protected void SetDamage(IDamageReceiver damageReceiver);
+
+        abstract public void ResurrectZombies(Vector3 position);
+
+        abstract public void FixUpdateExecute();
     }
 }
 

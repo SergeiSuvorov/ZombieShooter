@@ -15,14 +15,14 @@ public class WeaponView : MonoBehaviour
         _visualEffectRoot.gameObject.SetActive(false);
     }
 
-    public void Action()
+    public void Action( int damage)
     {
         RaycastHit hit;
         if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit))
         {
             var damageReceiver = hit.transform.GetComponent<IDamageReceiver>();
             if (damageReceiver != null)
-                damageReceiver.GetDamage();
+                damageReceiver.GetDamage(damage);
         }
     }
     public void SetActiveVisualEffect(bool setActive)
