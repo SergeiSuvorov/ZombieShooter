@@ -3,7 +3,7 @@ using Photon.Pun;
 using System;
 using UnityEngine;
 
-public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable
+public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable, IDamageReceiver
 {
     [SerializeField]
     private Transform _lookTransformRoot;
@@ -33,6 +33,8 @@ public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable
     public bool IsActive { get; set; }
 
     public Action<PhotonStream, PhotonMessageInfo> onPhotonSerializeView;
+
+    public event Action<int> onGetDamage;
 
     private void Awake()
     {
@@ -95,6 +97,12 @@ public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable
     {
         transform.position = position;
         transform.rotation = quaternion;
+    }
+
+    public void GetDamage(int damage)
+    {
+        Debug.Log("GettingDamage" + gameObject.name);
+        onGetDamage?.Invoke(damage);
     }
 }
 

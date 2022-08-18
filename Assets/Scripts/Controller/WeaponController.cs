@@ -42,7 +42,7 @@ namespace Controller
         private void WeaponAction()
         {
             _currentAmmoInClip--;
-            _view.Action();
+            _view.Action(_model.Damage);
             _view.SetActiveVisualEffect(_isFire.Value);
             _currentTime = _model.ShootDelayTime;
 

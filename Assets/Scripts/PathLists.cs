@@ -10,6 +10,7 @@
     public const string ZombieView = "Prefabs/Zombie0";
 
     public const string FollowCameraModel = "Models/FollowCameraModel";
-    public const string AIZombiModel = "Models/StalkerZombi";
+    public const string AIStalkerZombieModel = "Models/StalkerZombie";
     public const string WeaponModel = "Models/WeaponModel0";
+    public const string ZombieModel = "Models/ZombieModel";
 }

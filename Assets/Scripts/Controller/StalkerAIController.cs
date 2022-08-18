@@ -9,34 +9,41 @@ namespace Controller
 {
     public class StalkerAIController
     {
-        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.AIZombiModel };
+        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.AIStalkerZombieModel };
 
         private readonly ZombieView _view;
         private readonly Seeker _seeker;
         private readonly Transform _target;
-        private readonly AIZombiModelConfig _model;
+        private readonly AIZombieModelConfig _model;
         private Path _path;
         private int _currentPointIndex;
         private float _timeTillNextRecalculate = 0;
         private const float _delay = 1;
+
+        public bool IsActive;
+
         public StalkerAIController(ZombieView view, Transform target)
         {
             _view = view != null ? view : throw new ArgumentNullException(nameof(view));
             _seeker = _view.Seeker;
             _view.Init();
             _target = target != null ? target : throw new ArgumentNullException(nameof(target));
-            _model = LoadAIZombiModelConfig();
+            _model = LoadAIZombieModelConfig();
+            IsActive = true;
         }
 
-        private AIZombiModelConfig LoadAIZombiModelConfig()
+        private AIZombieModelConfig LoadAIZombieModelConfig()
         {
             var objectModel = UnityEngine.Object.Instantiate(ResourceLoader.LoadScriptable(_modelPath));
 
-            return (objectModel as AIZombiModelConfig);
+            return (objectModel as AIZombieModelConfig);
         }
 
         public void FixUpdateExecute()
         {
+            if (!IsActive)
+                return;
+
             Timer();
             var newVelocity = CalculateVelocity(_view.Transform.position);
            
@@ -79,7 +86,6 @@ namespace Controller
         {
             if (_path == null) 
             {
-                Debug.Log(_path == null);
                 return Vector3.zero;
             }
 

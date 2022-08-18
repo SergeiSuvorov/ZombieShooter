@@ -1,6 +1,9 @@
-﻿public interface IDamageReceiver
+﻿using System;
+
+public interface IDamageReceiver
 {
-    void GetDamage();
+    event Action<int> onGetDamage;
+    void GetDamage(int damage);
 }
 
 

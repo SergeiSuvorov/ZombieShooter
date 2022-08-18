@@ -19,7 +19,10 @@ public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable, IDamageRecei
     public Seeker Seeker => _seeker;
 
     public Action<PhotonStream, PhotonMessageInfo> onPhotonSerializeView;
-    public Action onGetDamage;
+
+    public event Action<int> onGetDamage;
+
+    public Action<IDamageReceiver> onCollisionStay;
 
     private void Awake()
     {
@@ -42,9 +45,20 @@ public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable, IDamageRecei
         transform.rotation = quaternion;
     }
 
-    public void GetDamage()
+    public void GetDamage( int damage)
     {
-        onGetDamage?.Invoke();
+        //Action onDeathCallback,
+        onGetDamage?.Invoke(damage);
+    }
+
+    public void OnCollisionStay(Collision collision)
+    {
+        var damageReceiver = (collision.gameObject.GetComponent<CharacterView>());
+        if (damageReceiver != null)
+        {
+            Debug.Log(collision.gameObject.name);
+            onCollisionStay?.Invoke(damageReceiver);
+        }
     }
 }
 
