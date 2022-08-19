@@ -36,11 +36,11 @@ public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable, IDamageR
 
     public event Action<int> onGetDamage;
 
-    private void Awake()
+    private void Start()
     {
-        Debug.Log($"Awake { GameController.Instance!=null}");
+        Debug.Log($"Awake {PhotonMovableObjectManager.Instance!=null}");
 
-       GameController.Instance?.RegisterPlayer(this);
+        PhotonMovableObjectManager.Instance?.RegisterPlayer(this);
     }
     public void Init()
     {

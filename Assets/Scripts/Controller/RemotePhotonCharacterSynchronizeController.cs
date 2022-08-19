@@ -17,7 +17,7 @@ namespace Controller
         private Quaternion _networkRotation;
         private bool _firstTake = true;
         private SubscriptionProperty<bool> _isFire;
-
+        private float _teleportIfDistanceGreaterThan = 3f;
 
         public RemotePhotonCharacterSynchronizeController(CharacterView view, SubscriptionProperty<bool> isFire)
         {
@@ -52,7 +52,12 @@ namespace Controller
 
                 _networkPosition += _rigidbody.velocity * lag;
                 _distance = Vector3.Distance(_rigidbody.position, _networkPosition);
-                
+
+                if (Vector3.Distance(_rigidbody.position, _networkPosition) > _teleportIfDistanceGreaterThan)
+                {
+                    _firstTake = true;
+                }
+
                 if (_firstTake)
                 {
                     _view.SetWordPositionAndRotation(_networkPosition, _networkRotation);

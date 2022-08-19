@@ -25,15 +25,14 @@ namespace Controller
             _updateManager.UpdateList.Add(this);
             if (PhotonNetwork.IsMasterClient)
             {
-                _updateManager.FixUpdateList.Remove(_zombieController);
                 _zombieController = new MasterClientZombiController(characterTransform);
                 AddController(_zombieController);
 
-                _zombieController.onZombieDie += OnZombieDie ;
+                _zombieController.onZombieDie += OnZombieDie;
                 _updateManager.FixUpdateList.Add(_zombieController);
                 _zombiControllerList.Add(_zombieController);
             }
-            
+
         }
 
         private void OnZombieDie(ZombieControllerBase zombieController)
@@ -48,7 +47,7 @@ namespace Controller
         {
             if (!PhotonNetwork.IsMasterClient)
             {
-                _zombieController = new RemoveZombieController(view);
+                _zombieController = new RemoteZombieController(view);
                 AddController(_zombieController);
                 _zombieController.onZombieDie += OnZombieDie;
                 _updateManager.FixUpdateList.Add(_zombieController);
@@ -67,14 +66,22 @@ namespace Controller
         {
             if (PhotonNetwork.IsMasterClient)
             {
+                _updateManager.FixUpdateList.Remove(_zombieController);
                 var zombieController = new MasterClientZombiController(_zombieController,_characterTransform);
                 RemoveController(_zombieController);
+                _zombieController.onZombieDie -= OnZombieDie;
+
+                if (_waitingToResurrectZombiesList.Contains(_zombieController))
+                {
+                    _waitingToResurrectZombiesList.Remove(_zombieController);
+                    _waitingToResurrectZombiesList.Add(zombieController);
+                }
                 _zombieController.Dispose();
-                _updateManager.FixUpdateList.Remove(_zombieController);
 
                 _zombieController = zombieController;
                 AddController(_zombieController);
-                _updateManager.FixUpdateList.Add(zombieController);
+                _updateManager.FixUpdateList.Add(_zombieController);
+                _zombieController.onZombieDie += OnZombieDie;
             }
         }
 

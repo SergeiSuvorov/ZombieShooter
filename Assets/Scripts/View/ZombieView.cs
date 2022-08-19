@@ -26,8 +26,12 @@ public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable, IDamageRecei
 
     private void Awake()
     {
-        GameController.Instance?.RegisterEnemy(this);
         _aIPath.enabled = false;
+    }
+
+    private void Start()
+    {
+        PhotonMovableObjectManager.Instance?.RegisterEnemy(this);
     }
     public void Init()
     {
