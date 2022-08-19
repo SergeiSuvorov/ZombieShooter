@@ -1,8 +1,6 @@
 ﻿using Model;
 using Photon.Pun;
 using Photon.Realtime;
-using System;
-using System.Collections.Generic;
 using Tools;
 using UnityEngine;
 
@@ -11,17 +9,9 @@ namespace Controller
 {
     public class GameController : BaseController
     {
-        private static GameController _instance;
-        public static GameController Instance=>_instance;
-
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.CharacterView };
-
         private MapController _mapController;
         private InputController _inputController;
-        private OwnerPlayerCharacterController _ownerCharacterController;
-        private PhotonGameController _photonGameController;
         private FollowCameraController _cameraController;
-        private Dictionary<Player, BasePlayerCharacterController> _playerControllerDictionary = new Dictionary<Player, BasePlayerCharacterController>();
 
         private SubscriptionProperty<Vector2> _inputMoveDiff = new SubscriptionProperty<Vector2>();
         private SubscriptionProperty<Vector2> _inputRotateDiff = new SubscriptionProperty<Vector2>();
@@ -30,13 +20,10 @@ namespace Controller
         private UpdateManager _updateManager;
         private ProfilePlayer _profilePlayer;
 
-        private EnemyManager _enemyManager;
+        private PhotonMovableObjectManager _photonMovableObjectManager;
+
         public GameController(UpdateManager updateManager, ProfilePlayer profilePlayer)
         {
-            if (Instance == null)
-                _instance = this;
-
-
             _updateManager = updateManager;
             _profilePlayer = profilePlayer;
 
@@ -46,82 +33,22 @@ namespace Controller
             _inputController = new InputController(_inputMoveDiff, _inputRotateDiff, _inputIsFire);
             AddController(_inputController);
 
-            _photonGameController = new PhotonGameController();
-            AddController(_photonGameController);
+            _photonMovableObjectManager = new PhotonMovableObjectManager(_updateManager, _inputController, _profilePlayer);
+            AddController(_photonMovableObjectManager);
+            _photonMovableObjectManager.onOwnerPlayerRegister += OnOwnerCharacterRegistrator;
+            _photonMovableObjectManager.onOwnerPlayerDead += OnOwnerPlayerDead;
 
-            var characterView = LoadCharacterView();
+            _updateManager.UpdateList.Add(_inputController);
+        }
 
+        private void OnOwnerCharacterRegistrator(CharacterView characterView)
+        {
             _cameraController = new FollowCameraController(characterView.transform);
             AddController(_cameraController);
-
-            _enemyManager = new EnemyManager(_updateManager, characterView.transform);
-            AddController(_enemyManager);
-            _updateManager.UpdateList.Add(_inputController);
             _updateManager.LateUpdateList.Add(_cameraController);
-
-            _photonGameController.onPlayerLeftRoom += OnPlayerLeftRoom;
-            _photonGameController.onMasterClientSwitched += OnMasterClientSwitched;
         }
 
-        private void OnMasterClientSwitched(Player newMasterClient)
-        {
-            _enemyManager.OnMasterClientSwitched();
-        }
-
-        public CharacterView LoadCharacterView()
-        {
-            var objectView = PhotonNetwork.Instantiate(_viewPath.PathResource, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
- 
-            return objectView.GetComponent<CharacterView>();
-        }
-
-        private void OnPlayerLeftRoom(Player other)
-        {
-            Debug.Log(other.NickName);
-            if (_playerControllerDictionary.ContainsKey(other))
-            {
-                var characterController = _playerControllerDictionary[other];
-                _updateManager.UpdateList.Remove(characterController);
-                _updateManager.FixUpdateList.Remove(characterController);
-                _playerControllerDictionary.Remove(other);
-                characterController.Dispose();
-            }
-        }
-        public void RegisterEnemy(ZombieView view)
-        {
-            if (!PhotonNetwork.IsMasterClient)
-            {
-                _enemyManager.RegisterEnemy(view);
-            }
-
-        }
-        public void RegisterPlayer(CharacterView view)
-        {
-            if (view.photonView.IsMine)
-            {
-                var debugPlayerModel = new PlayerModel(_profilePlayer.UserName, 100);
-                _ownerCharacterController = new OwnerPlayerCharacterController(_inputMoveDiff, _inputRotateDiff, _inputIsFire, view, debugPlayerModel);
-                _ownerCharacterController.onPlayerDied += OnPlayerDead;
-                AddController(_ownerCharacterController);
-
-                _updateManager.UpdateList.Add(_ownerCharacterController);
-                _updateManager.FixUpdateList.Add(_ownerCharacterController);
-
-                _playerControllerDictionary.Add(view.photonView.Owner, _ownerCharacterController);
-            }
-            else
-            {
-                var characterController = new RemotePlayerCharacterController(view);
-                AddController(characterController);
-
-                _updateManager.UpdateList.Add(characterController);
-                _updateManager.FixUpdateList.Add(characterController);
-
-                _playerControllerDictionary.Add(view.photonView.Owner, characterController);
-            }
-        }
-
-        private void OnPlayerDead()
+        private void OnOwnerPlayerDead()
         {
             Debug.Log("Player is deads");
             _profilePlayer.LastPhotonRoom = PhotonNetwork.CurrentRoom.Name;
@@ -132,27 +59,11 @@ namespace Controller
 
         protected override void OnDispose()
         {
-            var tKey = _playerControllerDictionary.Keys;
-
-            foreach(var key in tKey)
-            {
-                if(_playerControllerDictionary.ContainsKey(key))
-                {
-                    var characterController = _playerControllerDictionary[key];
-
-                    if (characterController != null)
-                    {
-                        _updateManager.UpdateList.Remove(characterController);
-                        _updateManager.FixUpdateList.Remove(characterController);
-                    }
-                }
-            }
-
-            _playerControllerDictionary.Clear();
+            _photonMovableObjectManager.onOwnerPlayerRegister -= OnOwnerCharacterRegistrator;
+            _photonMovableObjectManager.onOwnerPlayerDead -= OnOwnerPlayerDead;
             _updateManager.UpdateList.Remove(_inputController);
             _updateManager.LateUpdateList.Remove(_cameraController);
-            _photonGameController.onPlayerLeftRoom -= OnPlayerLeftRoom;
-            _instance = null;
+
             base.OnDispose();
         }
     }

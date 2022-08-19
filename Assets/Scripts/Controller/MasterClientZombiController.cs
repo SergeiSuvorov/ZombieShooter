@@ -9,13 +9,11 @@ namespace Controller
     public class MasterClientZombiController : ZombieControllerBase
     {
         private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.ZombieView };
-        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.ZombieModel };
 
         private StalkerAIController _stalkerAIController;
         private Rigidbody _rigidbody;
-        private ZombieModel _model;
         private int _currentHealth;
-        private float _currentCoolDawnTime;
+
 
         public MasterClientZombiController(Transform targetTransform)
         {
@@ -32,12 +30,7 @@ namespace Controller
             _stalkerAIController = new StalkerAIController(_view, targetTransform);
 
         }
-        private ZombieModel LoadZombiModel()
-        {
-            var objectModel = Object.Instantiate(ResourceLoader.LoadScriptable(_modelPath));
-
-            return (objectModel as ZombieModel);
-        }
+      
 
         private void GetDamage(int damage)
         {
@@ -122,6 +115,7 @@ namespace Controller
             _view.gameObject.SetActive(true);
             _view.SetWordPositionAndRotation(position, _rigidbody.rotation);
             _stalkerAIController.IsActive = true;
+            _currentCoolDawnTime = 0;
         }
 
         protected override void SetDamage(IDamageReceiver damageReceiver)

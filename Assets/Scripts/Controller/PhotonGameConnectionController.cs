@@ -34,8 +34,8 @@ namespace Controller
             if (PhotonNetwork.IsConnected)
             {
 				Debug.Log("IsConnected Before");
-                PhotonNetwork.JoinRandomRoom();
-            }
+				PhotonNetwork.JoinRandomOrCreateRoom();
+			}
             else
             {
 				Debug.Log("Connect");

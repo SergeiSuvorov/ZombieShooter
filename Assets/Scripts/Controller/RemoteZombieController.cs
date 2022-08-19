@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Controller
 {
-    public class RemoveZombieController : ZombieControllerBase
+    public class RemoteZombieController : ZombieControllerBase
     {
         private Rigidbody _rigidbody;
 
@@ -16,13 +16,16 @@ namespace Controller
         private bool _firstTake = true;
         private bool _currentLifeStatus = true;
         private int _currentHealth;
-        public RemoveZombieController(ZombieView view)
+        private float _teleportIfDistanceGreaterThan =3f;
+
+        public RemoteZombieController(ZombieView view)
         {
             _view = view;
             AddGameObjects(_view.gameObject);
             _view.onPhotonSerializeView += OnPhotonSerializeView;
             _view.onCollisionStay += SetDamage ;
             _rigidbody = _view.Rigidbody;
+            _model = LoadZombiModel();
         }
 
         private void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -46,7 +49,10 @@ namespace Controller
                     Debug.Log(_isLife);
                     Died();
                 }
-
+                if (Vector3.Distance(_rigidbody.position, _networkPosition) > _teleportIfDistanceGreaterThan)
+                {
+                    _firstTake = true;
+                }
                 if (_firstTake && _isLife)
                 {
                     _view.SetWordPositionAndRotation(_networkPosition, _networkRotation);
@@ -68,6 +74,16 @@ namespace Controller
 
             _rigidbody.position = Vector3.MoveTowards(_rigidbody.position, _networkPosition, _distance * (1.0f / PhotonNetwork.SerializationRate));
             _rigidbody.rotation = Quaternion.RotateTowards(_rigidbody.rotation, _networkRotation, _angle * (1.0f / PhotonNetwork.SerializationRate));
+
+
+            if (!_isAttack)
+                return;
+
+            _currentCoolDawnTime -= Time.fixedDeltaTime;
+            if (_currentCoolDawnTime <= 0)
+            {
+                _isAttack = false;
+            }
         }
 
         public override void ResurrectZombies(Vector3 position)
@@ -75,11 +91,17 @@ namespace Controller
             _firstTake = true;
             _view.SetWordPositionAndRotation(position, _networkRotation);
             _view.gameObject.SetActive(true);
+            _currentCoolDawnTime = 0;
         }
 
         protected override void SetDamage(IDamageReceiver damageReceiver)
         {
-            damageReceiver.GetDamage(0);
+            if (_isAttack)
+                return;
+
+            damageReceiver.GetDamage(_model.Damage);
+            _isAttack = true;
+            _currentCoolDawnTime = _model.CoolDawnTime;
         }
 
         protected override void OnDispose()

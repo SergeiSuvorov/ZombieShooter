@@ -14,6 +14,7 @@ namespace Controller
         private SubscriptionProperty<int> _currentHealth=new SubscriptionProperty<int>();
         private PlayerModel _playerModel;
         public Action onPlayerDied;
+
         public OwnerPlayerCharacterController(SubscriptionProperty<Vector2> moveDiff, SubscriptionProperty<Vector2> rotateDiff, SubscriptionProperty<bool> isFire, CharacterView view, PlayerModel playerModel)
         {
             InitView(view);
@@ -72,7 +73,6 @@ namespace Controller
 
             _moveDiff.UnSubscriptionOnChange(Move);
             _rotateDiff.UnSubscriptionOnChange(Rotate);
-
         }
     }
 }
