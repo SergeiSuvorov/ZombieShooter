@@ -29,7 +29,6 @@ public class InputView : MonoBehaviour
         if (isMouseButtonDown != _isFire.Value)
         {
             _isFire.Value = isMouseButtonDown;
-            Debug.Log($"IsFire {isMouseButtonDown}");
         }
     }
 

@@ -9,7 +9,7 @@ namespace Controller
         {
             InitView(view);
 
-            _weaponController = new WeaponController(view.WeaponTransformRoot, _isFire);
+            _weaponController = new WeaponController(view.WeaponTransformRoot, _isFire, view.photonView.Owner);
             AddController(_weaponController);
 
             _photonCharacterController = new RemotePhotonCharacterSynchronizeController(view, _isFire);

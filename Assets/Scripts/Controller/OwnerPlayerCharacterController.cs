@@ -1,4 +1,7 @@
-﻿using Model;
+﻿using ExitGames.Client.Photon;
+using Model;
+using Photon.Pun;
+using Photon.Realtime;
 using System;
 using Tools;
 using UnityEngine;
@@ -19,8 +22,9 @@ namespace Controller
         {
             InitView(view);
             _view.onGetDamage += GetDamage;
+            PlayerRegisterEvent(_view);
 
-            _weaponController = new WeaponController(view.WeaponTransformRoot, isFire);
+            _weaponController = new WeaponController(view.WeaponTransformRoot, isFire, view.photonView.Owner);
             AddController(_weaponController);
 
             _isFire = isFire;
@@ -32,14 +36,25 @@ namespace Controller
             _moveDiff.SubscribeOnChange(Move);
             _rotateDiff = rotateDiff;
             _rotateDiff.SubscribeOnChange(Rotate);
+
             _currentHealth.Value = _playerModel.PlayerHealth;
         }
 
-        private void GetDamage(int damage)
+        private void GetDamage(int damage, Player player)
         {
             _currentHealth.Value -= damage;
             if (_currentHealth.Value <= 0)
-                onPlayerDied?.Invoke();
+            {
+                if (player != null)
+                {
+                    PlayerKillPlayerEvent(player, _view.photonView.Owner);
+                }
+                else
+                    MonsterKillPlayerEvent(_view.photonView.Owner);
+
+                 //after UI add
+                 //onPlayerDied?.Invoke();
+            }
         }
 
         protected virtual void Rotate(Vector2 rotateDiff)
@@ -65,6 +80,9 @@ namespace Controller
         public override void FixUpdateExecute()
         {
             _view.FixUpdateExecute();
+
+            if(_view.transform.position.y<-10)
+                onPlayerDied?.Invoke();
         }
 
         protected override void OnDispose()
@@ -73,6 +91,26 @@ namespace Controller
 
             _moveDiff.UnSubscriptionOnChange(Move);
             _rotateDiff.UnSubscriptionOnChange(Rotate);
+        }
+
+        private void PlayerRegisterEvent(CharacterView view)
+        {
+            object[] content = new object[] { view.photonView.Owner };
+            RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            PhotonNetwork.RaiseEvent(PhotonEvenCodeList.PlayerRegisterCode, content, raiseEventOptions, SendOptions.SendReliable);
+        }
+
+        private void PlayerKillPlayerEvent(Player killer, Player killed)
+        {
+            object[] content = new object[] { killer, killed };
+            RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            PhotonNetwork.RaiseEvent(PhotonEvenCodeList.PlayerKillsPlayerCode, content, raiseEventOptions, SendOptions.SendReliable);
+        }
+        private void MonsterKillPlayerEvent(Player player)
+        {
+            object[] content = new object[] { player };
+            RaiseEventOptions raiseEventOptions = new RaiseEventOptions { Receivers = ReceiverGroup.All };
+            PhotonNetwork.RaiseEvent(PhotonEvenCodeList.MonsterKillsPlayerCode, content, raiseEventOptions, SendOptions.SendReliable);
         }
     }
 }

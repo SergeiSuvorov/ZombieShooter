@@ -16,8 +16,8 @@ namespace Controller
         protected float _currentCoolDawnTime;
         public ZombieView View => _view;
         public Action<ZombieControllerBase> onZombieDie;
-        public bool IsActive { get; set; }
 
+        public bool IsActive { get; set; }
 
         public void RemoveGameObjectFromList()
         {
@@ -33,14 +33,13 @@ namespace Controller
 
         protected void Died()
         {
-            Debug.Log("Die");
             onZombieDie?.Invoke(this);
             _view.gameObject.SetActive(false);
         }
 
         abstract protected void SetDamage(IDamageReceiver damageReceiver);
 
-        abstract public void ResurrectZombies(Vector3 position);
+        abstract public void ResurrectZombies(Transform target);
 
         abstract public void FixUpdateExecute();
     }

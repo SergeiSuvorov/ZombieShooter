@@ -46,7 +46,6 @@ namespace Controller
 
                 if (!_isLife)
                 {
-                    Debug.Log(_isLife);
                     Died();
                 }
                 if (Vector3.Distance(_rigidbody.position, _networkPosition) > _teleportIfDistanceGreaterThan)
@@ -86,20 +85,16 @@ namespace Controller
             }
         }
 
-        public override void ResurrectZombies(Vector3 position)
-        {
-            _firstTake = true;
-            _view.SetWordPositionAndRotation(position, _networkRotation);
-            _view.gameObject.SetActive(true);
-            _currentCoolDawnTime = 0;
-        }
 
         protected override void SetDamage(IDamageReceiver damageReceiver)
         {
+
             if (_isAttack)
                 return;
+            if (!(damageReceiver is CharacterController))
+                return;
 
-            damageReceiver.GetDamage(_model.Damage);
+            damageReceiver.GetDamage(_model.Damage, null);
             _isAttack = true;
             _currentCoolDawnTime = _model.CoolDawnTime;
         }
@@ -109,6 +104,14 @@ namespace Controller
             _view.onPhotonSerializeView -= OnPhotonSerializeView;
             _view.onCollisionStay -= SetDamage;
             base.OnDispose();
+        }
+
+        public override void ResurrectZombies(Transform target)
+        {
+            _firstTake = true;
+            _view.SetWordPositionAndRotation(_networkPosition, _networkRotation);
+            _view.gameObject.SetActive(true);
+            _currentCoolDawnTime = 0;
         }
     } 
 }

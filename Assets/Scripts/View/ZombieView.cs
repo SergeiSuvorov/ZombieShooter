@@ -3,6 +3,7 @@ using Photon.Pun;
 using System;
 using UnityEngine;
 using Pathfinding;
+using Photon.Realtime;
 
 public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable, IDamageReceiver
 {
@@ -20,7 +21,7 @@ public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable, IDamageRecei
 
     public Action<PhotonStream, PhotonMessageInfo> onPhotonSerializeView;
 
-    public event Action<int> onGetDamage;
+    public event Action<int,Player> onGetDamage;
 
     public Action<IDamageReceiver> onCollisionStay;
 
@@ -49,10 +50,9 @@ public class ZombieView: MonoBehaviourPunCallbacks, IPunObservable, IDamageRecei
         transform.rotation = quaternion;
     }
 
-    public void GetDamage( int damage)
+    public void GetDamage(int damage, Player player)
     {
-        //Action onDeathCallback,
-        onGetDamage?.Invoke(damage);
+        onGetDamage?.Invoke(damage, player);
     }
 
     public void OnCollisionStay(Collision collision)

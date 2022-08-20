@@ -2,6 +2,7 @@
 using Photon.Pun;
 using Photon.Realtime;
 using System;
+using System.Collections.Generic;
 using Tools;
 using UnityEngine;
 
@@ -16,7 +17,6 @@ namespace Controller
         private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.CharacterView };
 
         private UpdateManager _updateManager;
-        private Transform _characterTransform;
         private EnemyManager _enemyManager;
 
         private ProfilePlayer _profilePlayer;
@@ -25,13 +25,19 @@ namespace Controller
         public Action onOwnerPlayerDead;
         public Action<CharacterView> onOwnerPlayerRegister;
 
-        public PhotonMovableObjectManager(UpdateManager updateManager, InputController inputController, ProfilePlayer profilePlayer)
+        private List<Transform> _playerSpawnPoints;
+        private List<Transform> _enemySpawnPoints;
+        private List<Transform> _characterTransformList=new List<Transform>();
+
+        public PhotonMovableObjectManager(UpdateManager updateManager, InputController inputController, ProfilePlayer profilePlayer, MapSpawnPoints mapSpawnPoints)
         {
             if (Instance == null)
                 _instance = this;
 
             _updateManager = updateManager;
             _profilePlayer = profilePlayer;
+            _enemySpawnPoints = mapSpawnPoints.EnemySpawnPoints;
+            _playerSpawnPoints = mapSpawnPoints.PlayerSpawnPoints;
 
             var characterView = LoadCharacterView();
             _charactersController = new CharactersController(updateManager, inputController, profilePlayer);
@@ -39,13 +45,17 @@ namespace Controller
 
             _charactersController.onOwnerPlayerDead += OnOwnerPlayerDead;
 
-            _enemyManager = new EnemyManager(_updateManager, characterView.transform);
+            _characterTransformList.Add(characterView.transform);
+            _enemyManager = new EnemyManager(_updateManager, _characterTransformList, mapSpawnPoints.EnemySpawnPoints);
             AddController(_enemyManager);
         }
 
         public CharacterView LoadCharacterView()
         {
-            var objectView = PhotonNetwork.Instantiate(_viewPath.PathResource, new Vector3(0f, 5f, 0f), Quaternion.identity, 0);
+            var spawnPointIndex = PhotonNetwork.CurrentRoom.Players.Count;
+            var spawnPosition = _playerSpawnPoints[spawnPointIndex - 1].position;
+            var spawnRotation = _playerSpawnPoints[spawnPointIndex - 1].rotation;
+            var objectView = PhotonNetwork.Instantiate(_viewPath.PathResource, spawnPosition, spawnRotation, 0);
 
             return objectView.GetComponent<CharacterView>();
         }
@@ -60,12 +70,17 @@ namespace Controller
             _enemyManager.RegisterEnemy(view);
         }
 
-        public void RegisterPlayer(CharacterView view)
+        public void RegisterPlayer(CharacterView characterView)
         {
-            _charactersController.RegisterPlayer(view);
-            if (view.photonView.IsMine)
+            _charactersController.RegisterPlayer(characterView);
+
+            if (characterView.photonView.IsMine)
             {
-                onOwnerPlayerRegister?.Invoke(view);
+                onOwnerPlayerRegister?.Invoke(characterView);
+            }
+            else
+            {
+                _characterTransformList.Add(characterView.transform);
             }
         }
 
@@ -76,6 +91,16 @@ namespace Controller
 
         public override void OnPlayerLeftRoom(Player other)
         {
+            for (int i = (_characterTransformList.Count - 1); i >= 0; i--)
+            {
+                var characterOwner = _characterTransformList[i].GetComponent<CharacterView>().photonView.Owner;
+                if (characterOwner == other)
+                {
+                    _characterTransformList.RemoveAt(i);
+                    break;
+                }
+            }
+
             _charactersController.OnPlayerLeftRoom(other);
         }
 

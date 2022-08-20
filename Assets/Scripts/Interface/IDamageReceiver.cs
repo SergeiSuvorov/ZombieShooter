@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Photon.Realtime;
+using System;
 
 public interface IDamageReceiver
 {
-    event Action<int> onGetDamage;
-    void GetDamage(int damage);
+    event Action<int,Player> onGetDamage;
+    void GetDamage(int damage, Player player);
 }
 
 

@@ -21,6 +21,17 @@ namespace Controller
 
             return objectView.GetComponent<MapView>();
         }
+
+        public MapSpawnPoints GetSpawnPoint()
+        {
+            var spawnPoint = new MapSpawnPoints
+            {
+                PlayerSpawnPoints = _view.PlayerSpawnPoints,
+                EnemySpawnPoints = _view.EnemySpawnPoints,
+            };
+
+            return spawnPoint;
+        }
     }
 }
 

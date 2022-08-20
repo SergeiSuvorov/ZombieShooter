@@ -7,20 +7,22 @@ using UnityEngine;
 
 namespace Controller
 {
-    public class StalkerAIController
+    public class StalkerAIController:BaseController
     {
         private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.AIStalkerZombieModel };
 
         private readonly ZombieView _view;
         private readonly Seeker _seeker;
-        private readonly Transform _target;
         private readonly AIZombieModelConfig _model;
+
+        private Transform _target;
         private Path _path;
         private int _currentPointIndex;
         private float _timeTillNextRecalculate = 0;
         private const float _delay = 1;
 
         public bool IsActive;
+        public Action needNewTarget; 
 
         public StalkerAIController(ZombieView view, Transform target)
         {
@@ -51,6 +53,12 @@ namespace Controller
             _view.Rigidbody.velocity = newVelocity;
         }
 
+        public void ChangeTarget( Transform target)
+        {
+            _target = target;
+            if (_target != null) 
+            RecalculatePath();
+        }
         private void Timer()
         {
 
@@ -65,8 +73,15 @@ namespace Controller
         {
             if (_seeker.IsDone())
             {
-                _seeker.StartPath(_view.Rigidbody.position, _target.position, OnPathComplete);
-                _timeTillNextRecalculate = _delay;
+                if (_target != null)
+                {
+                    _seeker.StartPath(_view.Rigidbody.position, _target.position, OnPathComplete);
+                    _timeTillNextRecalculate = _delay;
+                }
+                else
+                {
+                    needNewTarget?.Invoke();
+                }
             }
         }
 

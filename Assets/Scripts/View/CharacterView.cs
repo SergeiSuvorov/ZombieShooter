@@ -1,5 +1,6 @@
 ﻿using Controller;
 using Photon.Pun;
+using Photon.Realtime;
 using System;
 using UnityEngine;
 
@@ -34,14 +35,16 @@ public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable, IDamageR
 
     public Action<PhotonStream, PhotonMessageInfo> onPhotonSerializeView;
 
-    public event Action<int> onGetDamage;
+    public event Action<int, Player> onGetDamage;
 
     private void Start()
     {
         Debug.Log($"Awake {PhotonMovableObjectManager.Instance!=null}");
 
         PhotonMovableObjectManager.Instance?.RegisterPlayer(this);
-    }
+        lookAngleX = transform.rotation.eulerAngles.y;
+
+}
     public void Init()
     {
         gameObject.name = photonView.Owner.NickName;
@@ -71,7 +74,8 @@ public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable, IDamageR
         lookAngleY += smoothY * _turnSpeed;
         Quaternion targetLookRot = Quaternion.Euler(-lookAngleY, lookAngleX, 0);
         _lookTransformRoot.rotation = targetLookRot;
-
+        _xRotate = 0;
+        _yRotate = 0;
         //_weaponTransformRoot.rotation = Quaternion.Euler(lookAngleY, lookAngleX, 0);
     }
     public void FixUpdateExecute()
@@ -99,9 +103,9 @@ public class CharacterView : MonoBehaviourPunCallbacks, IPunObservable, IDamageR
         transform.rotation = quaternion;
     }
 
-    public void GetDamage(int damage)
+    public void GetDamage(int damage, Player player)
     {
-        onGetDamage?.Invoke(damage);
+        onGetDamage?.Invoke(damage, player);
     }
 }
 

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Realtime;
+using UnityEngine;
 
 public class WeaponView : MonoBehaviour
 {
@@ -8,11 +9,16 @@ public class WeaponView : MonoBehaviour
     [SerializeField]
     private Transform _visualEffectRoot;
 
-
+    private Player _ownerPlayer; 
     private void Awake()
     {
         _redDotDecal.SetActive(false);
         _visualEffectRoot.gameObject.SetActive(false);
+    }
+
+    public void SetOwner(Player ownerPlayer)
+    {
+        _ownerPlayer=ownerPlayer;
     }
 
     public void Action( int damage)
@@ -22,9 +28,10 @@ public class WeaponView : MonoBehaviour
         {
             var damageReceiver = hit.transform.GetComponent<IDamageReceiver>();
             if (damageReceiver != null)
-                damageReceiver.GetDamage(damage);
+                damageReceiver.GetDamage(damage, _ownerPlayer);
         }
     }
+
     public void SetActiveVisualEffect(bool setActive)
     {
         _visualEffectRoot.gameObject.SetActive(setActive);

@@ -1,4 +1,5 @@
 ﻿using Model;
+using Photon.Realtime;
 using Tools;
 using UnityEngine;
 
@@ -17,10 +18,11 @@ namespace Controller
 
         private bool _isReloading;
 
-        public WeaponController(Transform weaponRootTransform,SubscriptionProperty<bool> isFire)
+        public WeaponController(Transform weaponRootTransform,SubscriptionProperty<bool> isFire, Player ownerPlayer)
         {
             _model = LoadWeaponModel();
             _view = LoadWeaponView(weaponRootTransform);
+            _view.SetOwner(ownerPlayer);
             _currentAmmoInClip= _model.AmmoClipSize;
             _isFire = isFire;
         }
