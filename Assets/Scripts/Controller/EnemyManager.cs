@@ -10,34 +10,54 @@ namespace Controller
     {
         private UpdateManager _updateManager;
         private ZombieControllerBase _zombieController;
-        private Transform _characterTransform;
-
         private List<ZombieControllerBase> _zombiControllerList = new List<ZombieControllerBase>();
         private List<ZombieControllerBase> _waitingToResurrectZombiesList = new List<ZombieControllerBase>();
+        private List<Transform> _characterTransformList;
+        private List<Transform> _enemySpawnPoints;
+
         private float _curentResurrectTime;
         private const float _resurrectTime =3;
         public bool IsActive => throw new System.NotImplementedException();
 
-        public EnemyManager(UpdateManager updateManager, Transform characterTransform)
+        public EnemyManager(UpdateManager updateManager, List<Transform> characterTransformList, List<Transform> enemySpawnPoints)
         {
             _updateManager = updateManager;
-            _characterTransform = characterTransform;
+            _characterTransformList = characterTransformList;
+            _enemySpawnPoints = enemySpawnPoints;
             _updateManager.UpdateList.Add(this);
+            CreateZombie();
+        }
+
+        private void CreateZombie()
+        {
             if (PhotonNetwork.IsMasterClient)
             {
-                _zombieController = new MasterClientZombiController(characterTransform);
+                var randomTarget = GetRandomTarget();
+                var randomSpawnIndex = Random.Range(0, _enemySpawnPoints.Count);
+
+                _zombieController = new MasterClientZombiController(randomTarget, _enemySpawnPoints[randomSpawnIndex], GetNewTargetForZombie);
                 AddController(_zombieController);
 
                 _zombieController.onZombieDie += OnZombieDie;
                 _updateManager.FixUpdateList.Add(_zombieController);
                 _zombiControllerList.Add(_zombieController);
             }
+        }
 
+        private Transform GetRandomTarget()
+        {
+            var randomTargetIndex = Random.Range(0, _characterTransformList.Count);
+            while (_characterTransformList[randomTargetIndex] == null)
+            {
+                _characterTransformList.RemoveAt(randomTargetIndex);
+                randomTargetIndex = Random.Range(0, _characterTransformList.Count);
+            }
+
+            return _characterTransformList[randomTargetIndex];
         }
 
         private void OnZombieDie(ZombieControllerBase zombieController)
         {
-            Debug.Log("Die Zombie Die");
             _waitingToResurrectZombiesList.Add(zombieController);
             if(_curentResurrectTime<=0)
             _curentResurrectTime = _resurrectTime;
@@ -66,8 +86,10 @@ namespace Controller
         {
             if (PhotonNetwork.IsMasterClient)
             {
+                var randomTarget = GetRandomTarget();
                 _updateManager.FixUpdateList.Remove(_zombieController);
-                var zombieController = new MasterClientZombiController(_zombieController,_characterTransform);
+                var randomSpawnIndex = Random.Range(0, _enemySpawnPoints.Count);
+                var zombieController = new MasterClientZombiController(_zombieController, randomTarget, _enemySpawnPoints[randomSpawnIndex], GetNewTargetForZombie);
                 RemoveController(_zombieController);
                 _zombieController.onZombieDie -= OnZombieDie;
 
@@ -84,7 +106,13 @@ namespace Controller
                 _zombieController.onZombieDie += OnZombieDie;
             }
         }
-
+        public void GetNewTargetForZombie(ZombieControllerBase zombieControllerBase)
+        {
+            var randomTarget = GetRandomTarget();
+            var controller = zombieControllerBase as MasterClientZombiController;
+            if(controller!=null)
+                controller.SetNewTarget(randomTarget);
+        }
         public void UpdateExecute()
         {
             if (_waitingToResurrectZombiesList.Count <1)
@@ -93,13 +121,12 @@ namespace Controller
             if (_curentResurrectTime <= 0)
             {
                 var zombieController = _waitingToResurrectZombiesList[0];
-                int debugValue = Random.Range(2, 7);
-                zombieController.ResurrectZombies(new Vector3(debugValue, 1f, debugValue));
+                var randomTarget = GetRandomTarget();
+                zombieController.ResurrectZombies(randomTarget);
                 _waitingToResurrectZombiesList.Remove(zombieController);
 
                 if (_waitingToResurrectZombiesList.Count > 0)
                     _curentResurrectTime = _resurrectTime;
-                Debug.Log("ResurrectTime");
             }                
         }
 

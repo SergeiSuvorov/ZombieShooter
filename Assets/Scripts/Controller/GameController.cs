@@ -1,6 +1,5 @@
 ﻿using Model;
 using Photon.Pun;
-using Photon.Realtime;
 using Tools;
 using UnityEngine;
 
@@ -12,6 +11,7 @@ namespace Controller
         private MapController _mapController;
         private InputController _inputController;
         private FollowCameraController _cameraController;
+        private EventManager _eventManager;
 
         private SubscriptionProperty<Vector2> _inputMoveDiff = new SubscriptionProperty<Vector2>();
         private SubscriptionProperty<Vector2> _inputRotateDiff = new SubscriptionProperty<Vector2>();
@@ -27,13 +27,18 @@ namespace Controller
             _updateManager = updateManager;
             _profilePlayer = profilePlayer;
 
+            _eventManager = new EventManager();
+            AddController(_eventManager);
+            _eventManager.onOwnerPlayerDead += OnOwnerPlayerDead;
+
             _mapController = new MapController();
             AddController(_mapController);
 
             _inputController = new InputController(_inputMoveDiff, _inputRotateDiff, _inputIsFire);
             AddController(_inputController);
 
-            _photonMovableObjectManager = new PhotonMovableObjectManager(_updateManager, _inputController, _profilePlayer);
+            var spawnPoints = _mapController.GetSpawnPoint();
+            _photonMovableObjectManager = new PhotonMovableObjectManager(_updateManager, _inputController, _profilePlayer, spawnPoints);
             AddController(_photonMovableObjectManager);
             _photonMovableObjectManager.onOwnerPlayerRegister += OnOwnerCharacterRegistrator;
             _photonMovableObjectManager.onOwnerPlayerDead += OnOwnerPlayerDead;
@@ -63,7 +68,8 @@ namespace Controller
             _photonMovableObjectManager.onOwnerPlayerDead -= OnOwnerPlayerDead;
             _updateManager.UpdateList.Remove(_inputController);
             _updateManager.LateUpdateList.Remove(_cameraController);
-
+            _eventManager.onOwnerPlayerDead -= OnOwnerPlayerDead;
+           
             base.OnDispose();
         }
     }
