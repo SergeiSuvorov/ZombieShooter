@@ -1,4 +1,6 @@
 ﻿using Model;
+using ExitGames.Client.Photon;
+using Photon.Pun;
 using Photon.Realtime;
 using System;
 using System.Collections.Generic;
@@ -8,7 +10,7 @@ using UnityEngine;
 
 namespace Controller
 {
-    public class CharactersController:BaseController
+    public class CharactersController:BaseController, IOnEventCallback
     {
         private OwnerPlayerCharacterController _ownerCharacterController;
         private Dictionary<Player, BasePlayerCharacterController> _playerControllerDictionary = new Dictionary<Player, BasePlayerCharacterController>();
@@ -17,12 +19,16 @@ namespace Controller
         private SubscriptionProperty<bool> _isFire = new SubscriptionProperty<bool>();
         private ProfilePlayer _profilePlayer;
         private UpdateManager _updateManager;
+        private Transform _placeForUi;
 
         public Action onOwnerPlayerDead;
         public Action<CharacterView> onOwnerPlayerRegister;
 
-        public CharactersController( UpdateManager updateManager, InputController inputController, ProfilePlayer profilePlayer)
+        public CharactersController( UpdateManager updateManager, InputController inputController, ProfilePlayer profilePlayer, Transform placeForUi)
         {
+            PhotonNetwork.AddCallbackTarget(this);
+
+            _placeForUi = placeForUi;
             _moveDiff = inputController.MoveDiff;
             _rotateDiff = inputController.RotateDiff;
             _isFire = inputController.IsFire;
@@ -36,6 +42,7 @@ namespace Controller
             {
                 var debugPlayerModel = new PlayerModel(_profilePlayer.UserName, 100);
                 _ownerCharacterController = new OwnerPlayerCharacterController(_moveDiff, _rotateDiff, _isFire, view, debugPlayerModel);
+                _ownerCharacterController.CreatePlayerUI(_placeForUi);
                 _ownerCharacterController.onPlayerDied += OnOwnerPlayerDead;
                 AddController(_ownerCharacterController);
 
@@ -64,36 +71,65 @@ namespace Controller
         public void OnPlayerLeftRoom(Player other)
         {
             Debug.Log(other.NickName);
-            if (_playerControllerDictionary.ContainsKey(other))
+            if (_playerControllerDictionary.TryGetValue(other, out var characterController))
             {
-                var characterController = _playerControllerDictionary[other];
-                _updateManager.UpdateList.Remove(characterController);
-                _updateManager.FixUpdateList.Remove(characterController);
+                DestroyCharacterController(characterController);
                 _playerControllerDictionary.Remove(other);
-                characterController.Dispose();
             }
         }
 
+        private void DestroyCharacterController(BasePlayerCharacterController characterController)
+        {
+            _updateManager.UpdateList.Remove(characterController);
+            _updateManager.FixUpdateList.Remove(characterController);
+            RemoveController(characterController);
+            characterController.Dispose();
+        }
         protected override void OnDispose()
         {
+            PhotonNetwork.RemoveCallbackTarget(this);
+
             var tKey = _playerControllerDictionary.Keys;
 
             foreach (var key in tKey)
             {
-                if (_playerControllerDictionary.ContainsKey(key))
+                if (_playerControllerDictionary.TryGetValue(key, out var characterController) )
                 {
-                    var characterController = _playerControllerDictionary[key];
-
-                    if (characterController != null)
-                    {
-                        _updateManager.UpdateList.Remove(characterController);
-                        _updateManager.FixUpdateList.Remove(characterController);
-                    }
+                    _updateManager.UpdateList.Remove(characterController);
+                    _updateManager.FixUpdateList.Remove(characterController);
                 }
             }
 
             _playerControllerDictionary.Clear();
             base.OnDispose();
+        }
+
+        public void OnEvent(EventData photonEvent)
+        {
+            byte eventCode = photonEvent.Code;
+
+            if (eventCode == PhotonEvenCodeList.PlayerKillsPlayerCode)
+            {
+                object[] data = (object[])photonEvent.CustomData;
+                Player player = (Player)data[1];
+                onPlayerDie(player);
+            }
+            if (eventCode == PhotonEvenCodeList.MonsterKillsPlayerCode)
+            {
+                object[] data = (object[])photonEvent.CustomData;
+                Player player = (Player)data[0];
+                onPlayerDie(player);
+            }
+        }
+
+        private void onPlayerDie(Player player)
+        {
+            if (player == PhotonNetwork.LocalPlayer)
+            {
+                DestroyCharacterController(_ownerCharacterController);
+            }
+            else
+                OnPlayerLeftRoom(player);
         }
     }
 }

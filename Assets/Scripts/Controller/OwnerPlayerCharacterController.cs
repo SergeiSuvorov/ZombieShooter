@@ -15,6 +15,8 @@ namespace Controller
         private SubscriptionProperty<Vector2> _rotateDiff;
         private SubscriptionProperty<bool> _isFire;
         private SubscriptionProperty<int> _currentHealth=new SubscriptionProperty<int>();
+        private Transform _placeForUi;
+        private PlayerUIController _playerUIController;
         private PlayerModel _playerModel;
         public Action onPlayerDied;
 
@@ -40,6 +42,12 @@ namespace Controller
             _currentHealth.Value = _playerModel.PlayerHealth;
         }
 
+        public  void CreatePlayerUI(Transform placeForUi)
+        {
+            var currentAmmo = _weaponController.CurrentAmmoInClip;
+            _playerUIController = new PlayerUIController(placeForUi, _currentHealth, currentAmmo);
+            AddController(_playerUIController);
+        }
         private void GetDamage(int damage, Player player)
         {
             _currentHealth.Value -= damage;

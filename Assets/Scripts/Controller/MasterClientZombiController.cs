@@ -18,36 +18,23 @@ namespace Controller
         private Transform _spawnPlace;
         public Action<ZombieControllerBase> onZombieNeedNewTarget;
 
-        public MasterClientZombiController(Transform targetTransform, Transform spawnPlace, Action<ZombieControllerBase> SetNewTarget)
-        {
-            _spawnPlace=spawnPlace;
+        public MasterClientZombiController() { }
 
-            _view = LoadZombiView();
-            _rigidbody = _view.Rigidbody;
-            _view.onPhotonSerializeView += OnPhotonSerializeView;
-            _view.onGetDamage += GetDamage;
-            _view.onCollisionStay += SetDamage;
 
-            AddGameObjects(_view.gameObject);
-            
-            _model = LoadZombiModel();
-            _currentHealth = _model.Health;
-            _isLife = true;
-            _stalkerAIController = new StalkerAIController(_view, targetTransform);
-            _stalkerAIController.needNewTarget += NeedNewTarget;
-            onZombieNeedNewTarget += SetNewTarget;
-            AddController(_stalkerAIController);
-        }
-      
         public MasterClientZombiController(ZombieControllerBase removeZombie, Transform targetTransform, Transform spawnPlace, Action<ZombieControllerBase> SetNewTarget)
         {
             _spawnPlace = spawnPlace;
-            _view = removeZombie.View;
-            removeZombie.RemoveGameObjectFromList();
+            if (removeZombie.View == null)
+            {
+                _view = LoadZombiView();
+            }
+            else
+            {
+                _view = removeZombie.View;
+                removeZombie.RemoveGameObjectFromList();
+            }
 
-            _view.onCollisionStay += SetDamage;
-            _view.onPhotonSerializeView += OnPhotonSerializeView;
-            _view.onGetDamage += GetDamage;
+            
             _rigidbody = _view.Rigidbody;
             AddGameObjects(_view.gameObject);
 
@@ -56,9 +43,37 @@ namespace Controller
             _isLife = true;
 
             _stalkerAIController = new StalkerAIController(_view, targetTransform);
-            _stalkerAIController.needNewTarget += NeedNewTarget ;
-            onZombieNeedNewTarget += SetNewTarget;
+            
             AddController(_stalkerAIController);
+
+            onZombieNeedNewTarget += SetNewTarget;
+            Subscribe();
+        }
+
+        private void Subscribe()
+        {
+            _view.onCollisionStay += SetDamage;
+            _view.onPhotonSerializeView += OnPhotonSerializeView;
+            _view.onGetDamage += GetDamage;
+
+            _stalkerAIController.needNewTarget += NeedNewTarget;
+        }
+
+        private void UnSubscribe()
+        {
+            if (_view != null)
+            {
+                _view.onPhotonSerializeView -= OnPhotonSerializeView;
+                _view.onGetDamage -= GetDamage;
+                _view.onCollisionStay -= SetDamage;
+            }
+
+            if (_stalkerAIController != null)
+            {
+                _stalkerAIController.needNewTarget -= NeedNewTarget;
+                _stalkerAIController.Dispose();
+            }
+            onZombieNeedNewTarget = null;
         }
 
         private void NeedNewTarget()
@@ -77,11 +92,12 @@ namespace Controller
                 stream.SendNext(_isLife);
                 stream.SendNext(_isAttack);
                 stream.SendNext(_currentHealth);
-            }
-
             if (!_isLife)
             {
+                stream.SendNext(_spawnPlace.position);
                 Died();
+                    _view.SetWordPositionAndRotation(_spawnPlace.position, _rigidbody.rotation);
+                }
             }
         }
 
@@ -107,13 +123,15 @@ namespace Controller
             }
         }
 
-        public override void ResurrectZombies(Transform target)
+        public override void ResurrectZombies()
         {
             _isLife = true;
+
+            if (_model == null)
+                _model = LoadZombiModel();
             _currentHealth = _model.Health;
             _view.gameObject.SetActive(true);
-            _view.SetWordPositionAndRotation(_spawnPlace.position, _rigidbody.rotation);
-            _stalkerAIController.ChangeTarget(target);
+
             _stalkerAIController.IsActive = true;
             _currentCoolDawnTime = 0;
         }
@@ -142,18 +160,16 @@ namespace Controller
                 _stalkerAIController.IsActive = false;
                 PlayerKillZombieEvent(player);
                 if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
+                {
                     Died();
+                    _view.SetWordPositionAndRotation(_spawnPlace.position, _rigidbody.rotation);
+                }
             }
         }
 
-
         protected override void OnDispose()
         {
-            _view.onPhotonSerializeView -= OnPhotonSerializeView;
-            _view.onGetDamage -= GetDamage;
-            _view.onCollisionStay -= SetDamage;
-            _stalkerAIController.needNewTarget -= NeedNewTarget;
-            onZombieNeedNewTarget = null;
+            UnSubscribe();
             base.OnDispose();
         }
 

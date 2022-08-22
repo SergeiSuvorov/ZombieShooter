@@ -11,19 +11,20 @@ namespace Controller
         private WeaponModel _model;
         private SubscriptionProperty<bool> _isFire = new SubscriptionProperty<bool>();
         private float _currentTime;
-        private float _currentAmmoInClip;
+        private SubscriptionProperty<int> _currentAmmoInClip = new SubscriptionProperty<int>();
 
         private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.WeaponView };
         private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.WeaponModel };
 
         private bool _isReloading;
+        public SubscriptionProperty<int> CurrentAmmoInClip => _currentAmmoInClip;
 
         public WeaponController(Transform weaponRootTransform,SubscriptionProperty<bool> isFire, Player ownerPlayer)
         {
             _model = LoadWeaponModel();
             _view = LoadWeaponView(weaponRootTransform);
             _view.SetOwner(ownerPlayer);
-            _currentAmmoInClip= _model.AmmoClipSize;
+            _currentAmmoInClip.Value= _model.AmmoClipSize;
             _isFire = isFire;
         }
 
@@ -43,12 +44,12 @@ namespace Controller
 
         private void WeaponAction()
         {
-            _currentAmmoInClip--;
+            _currentAmmoInClip.Value--;
             _view.Action(_model.Damage);
             _view.SetActiveVisualEffect(_isFire.Value);
             _currentTime = _model.ShootDelayTime;
 
-            if (_currentAmmoInClip <= 0)
+            if (_currentAmmoInClip.Value <= 0)
                 BeginReload();
         }
 
@@ -62,7 +63,7 @@ namespace Controller
         private void EndReload()
         {
             _isReloading = false;
-            _currentAmmoInClip = _model.AmmoClipSize;
+            _currentAmmoInClip.Value = _model.AmmoClipSize;
             Debug.Log("EndReload()");
         }
 

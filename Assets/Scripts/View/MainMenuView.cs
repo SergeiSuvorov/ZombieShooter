@@ -10,6 +10,12 @@ public class MainMenuView : MonoBehaviour
     [SerializeField]
     private FeedbackText _feedbackText;
 
+    [SerializeField]
+    private Text _xpCountText;
+
+    [SerializeField]
+    private Text _lastMatchXPCountText;
+
     public Action onStartButtonClick;
 
     private void Awake()
@@ -20,6 +26,15 @@ public class MainMenuView : MonoBehaviour
 	private void OnStartButtonClick()
     {
         onStartButtonClick?.Invoke();
+    }
+
+    public void ShowXPInfo(int XP, int lastMatchXP)
+    {
+        _xpCountText.text = "XP:         " + XP.ToString();
+        if (lastMatchXP > 0)
+        {
+            _lastMatchXPCountText.text = "LastMatchXP:" + lastMatchXP.ToString();
+        }
     }
 
     private void OnDestroy()
