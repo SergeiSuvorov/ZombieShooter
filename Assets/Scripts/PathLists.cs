@@ -8,6 +8,10 @@
     public const string FollowCameraView = "Prefabs/FollowCameraView";
     public const string WeaponView = "Prefabs/Weapon0";
     public const string ZombieView = "Prefabs/Zombie0";
+    public const string PlayerUIView = "Prefabs/PlayerUIView";
+    public const string EventUIView = "Prefabs/EventUIView";
+    public const string TimerUIView = "Prefabs/TimerUIView";
+    public const string ResultTableView = "Prefabs/ResultTableView";
 
     public const string FollowCameraModel = "Models/FollowCameraModel";
     public const string AIStalkerZombieModel = "Models/StalkerZombie";

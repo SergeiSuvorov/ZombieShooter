@@ -99,7 +99,7 @@ namespace Controller
 
         private Vector3 CalculateVelocity(Vector3 fromPosition)
         {
-            if (_path == null) 
+            if (_path == null|| _path.vectorPath == null) 
             {
                 return Vector3.zero;
             }

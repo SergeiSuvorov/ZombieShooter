@@ -18,7 +18,7 @@ namespace Controller
 
         private UpdateManager _updateManager;
         private EnemyManager _enemyManager;
-
+        private Transform _placeForUi;
         private ProfilePlayer _profilePlayer;
         private CharactersController _charactersController;
 
@@ -29,7 +29,7 @@ namespace Controller
         private List<Transform> _enemySpawnPoints;
         private List<Transform> _characterTransformList=new List<Transform>();
 
-        public PhotonMovableObjectManager(UpdateManager updateManager, InputController inputController, ProfilePlayer profilePlayer, MapSpawnPoints mapSpawnPoints)
+        public PhotonMovableObjectManager(UpdateManager updateManager, InputController inputController, ProfilePlayer profilePlayer, MapSpawnPoints mapSpawnPoints, Transform placeForUi)
         {
             if (Instance == null)
                 _instance = this;
@@ -38,9 +38,10 @@ namespace Controller
             _profilePlayer = profilePlayer;
             _enemySpawnPoints = mapSpawnPoints.EnemySpawnPoints;
             _playerSpawnPoints = mapSpawnPoints.PlayerSpawnPoints;
+            _placeForUi = placeForUi;
 
             var characterView = LoadCharacterView();
-            _charactersController = new CharactersController(updateManager, inputController, profilePlayer);
+            _charactersController = new CharactersController(updateManager, inputController, profilePlayer, _placeForUi);
             AddController(_charactersController);
 
             _charactersController.onOwnerPlayerDead += OnOwnerPlayerDead;
@@ -91,15 +92,15 @@ namespace Controller
 
         public override void OnPlayerLeftRoom(Player other)
         {
-            for (int i = (_characterTransformList.Count - 1); i >= 0; i--)
-            {
-                var characterOwner = _characterTransformList[i].GetComponent<CharacterView>().photonView.Owner;
-                if (characterOwner == other)
-                {
-                    _characterTransformList.RemoveAt(i);
-                    break;
-                }
-            }
+            //for (int i = (_characterTransformList.Count - 1); i >= 0; i--)
+            //{
+            //    var characterOwner = _characterTransformList[i].GetComponent<CharacterView>().photonView.Owner;
+            //    if (characterOwner == other)
+            //    {
+            //        _characterTransformList.RemoveAt(i);
+            //        break;
+            //    }
+            //}
 
             _charactersController.OnPlayerLeftRoom(other);
         }

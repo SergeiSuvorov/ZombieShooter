@@ -5,4 +5,5 @@
     public const byte PlayerKillsZombieCode = 3;
     public const byte MonsterKillsPlayerCode = 4;
     public const byte ZombieRegisterCode = 5;
+    public const byte TimeSynhronizeCode = 6;
 }

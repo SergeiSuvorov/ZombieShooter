@@ -2,7 +2,6 @@
 using PlayFab.ClientModels;
 using System;
 
-
 namespace Controller
 {
     public class PlayFabAccountContoller : BaseController
@@ -17,7 +16,6 @@ namespace Controller
 
         public Action<PlayFabError> onPlayFabConnectError;
         public Action<UserAccountInfo> onPlayFabGetAccountSuccess;
-
 
         public void CreateAccount()
         {
@@ -93,7 +91,7 @@ namespace Controller
             var accountInfo = result.AccountInfo;
             onPlayFabGetAccountSuccess?.Invoke(accountInfo);
         }
-
+       
     }
 }
 

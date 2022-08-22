@@ -17,7 +17,6 @@ namespace Controller
         private bool _currentLifeStatus = true;
         private int _currentHealth;
         private float _teleportIfDistanceGreaterThan =3f;
-
         public RemoteZombieController(ZombieView view)
         {
             _view = view;
@@ -46,7 +45,10 @@ namespace Controller
 
                 if (!_isLife)
                 {
+                    var spawnPosition = (Vector3)stream.ReceiveNext();
+                    _view.SetWordPositionAndRotation(spawnPosition, _networkRotation);
                     Died();
+                    Debug.Log("Die");
                 }
                 if (Vector3.Distance(_rigidbody.position, _networkPosition) > _teleportIfDistanceGreaterThan)
                 {
@@ -106,10 +108,10 @@ namespace Controller
             base.OnDispose();
         }
 
-        public override void ResurrectZombies(Transform target)
+
+        public override void ResurrectZombies()
         {
             _firstTake = true;
-            _view.SetWordPositionAndRotation(_networkPosition, _networkRotation);
             _view.gameObject.SetActive(true);
             _currentCoolDawnTime = 0;
         }

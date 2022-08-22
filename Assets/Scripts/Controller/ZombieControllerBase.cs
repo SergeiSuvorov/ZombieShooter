@@ -39,7 +39,7 @@ namespace Controller
 
         abstract protected void SetDamage(IDamageReceiver damageReceiver);
 
-        abstract public void ResurrectZombies(Transform target);
+        abstract public void ResurrectZombies();
 
         abstract public void FixUpdateExecute();
     }
