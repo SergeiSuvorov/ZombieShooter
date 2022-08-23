@@ -8,8 +8,8 @@ namespace Controller
     public class FollowCameraController:BaseController, ILateUpdateable
     {
         private FollowCameraView _view;
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.FollowCameraView };
-        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.FollowCameraModel };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.FollowCameraView };
+        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = PathLists.FollowCameraModel };
         public bool IsActive { get; set; }
 
         public FollowCameraController(Transform characterTransform)

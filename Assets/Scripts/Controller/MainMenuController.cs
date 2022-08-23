@@ -12,7 +12,7 @@ namespace Controller
         private PhotonGameConnectionController _photonGameConnectionController;
         private PlayFabStatisticController _playFabStatisticController;
 
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.MainMenuView };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.MainMenuView };
         private readonly ProfilePlayer _profilePlayer;
 
         public MainMenuController (Transform placeForUi, ProfilePlayer profilePlayer)

@@ -7,7 +7,7 @@ namespace Controller
 {
     abstract public class ZombieControllerBase : BaseController, IFixUpdateable
     {
-        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.ZombieModel };
+        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = PathLists.ZombieModel };
 
         protected ZombieModel _model;
         protected ZombieView _view;

@@ -10,7 +10,7 @@ namespace Controller
 {
     public class MasterClientZombiController : ZombieControllerBase
     {
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.ZombieView };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.ZombieView };
 
         private StalkerAIController _stalkerAIController;
         private Rigidbody _rigidbody;

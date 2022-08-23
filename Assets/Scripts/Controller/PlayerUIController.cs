@@ -6,7 +6,7 @@ namespace Controller
 {
     public class PlayerUIController: BaseController
     {
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.PlayerUIView };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.PlayerUIView };
         private Transform _placeForUi;
         private SubscriptionProperty<int> _currentHealth;
         private SubscriptionProperty<int> _currentClipAmmo;

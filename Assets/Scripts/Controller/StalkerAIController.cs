@@ -9,7 +9,7 @@ namespace Controller
 {
     public class StalkerAIController:BaseController
     {
-        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.AIStalkerZombieModel };
+        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = PathLists.AIStalkerZombieModel };
 
         private readonly ZombieView _view;
         private readonly Seeker _seeker;
@@ -29,7 +29,7 @@ namespace Controller
             _view = view != null ? view : throw new ArgumentNullException(nameof(view));
             _seeker = _view.Seeker;
             _view.Init();
-            _target = target != null ? target : throw new ArgumentNullException(nameof(target));
+            _target = target; /*!= null ? target : throw new ArgumentNullException(nameof(target));*/
             _model = LoadAIZombieModelConfig();
             IsActive = true;
         }

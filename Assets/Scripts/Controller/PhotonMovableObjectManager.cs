@@ -14,7 +14,7 @@ namespace Controller
         private static PhotonMovableObjectManager _instance;
         public static PhotonMovableObjectManager Instance => _instance;
 
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.CharacterView };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.CharacterView };
 
         private UpdateManager _updateManager;
         private EnemyManager _enemyManager;
