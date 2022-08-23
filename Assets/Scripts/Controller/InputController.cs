@@ -8,7 +8,7 @@ namespace Controller
     {
         private InputView _view;
 
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.InputView};
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.InputView};
 
         public bool IsActive { get; set; }
 

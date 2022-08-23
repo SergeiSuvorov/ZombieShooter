@@ -6,7 +6,7 @@ namespace Controller
 {
     public class EventUIController : BaseController, IUpdateable
     {
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.EventUIView };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.EventUIView };
         private EventUIView _view;
         private UpdateManager _updateManager;
         private float _curentMessageTime;

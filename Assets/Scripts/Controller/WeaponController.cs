@@ -13,8 +13,8 @@ namespace Controller
         private float _currentTime;
         private SubscriptionProperty<int> _currentAmmoInClip = new SubscriptionProperty<int>();
 
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.WeaponView };
-        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = ViewPathLists.WeaponModel };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.WeaponView };
+        private readonly ResourcePath _modelPath = new ResourcePath { PathResource = PathLists.WeaponModel };
 
         private bool _isReloading;
         public SubscriptionProperty<int> CurrentAmmoInClip => _currentAmmoInClip;

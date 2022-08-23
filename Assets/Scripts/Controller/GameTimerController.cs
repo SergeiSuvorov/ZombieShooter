@@ -11,7 +11,7 @@ namespace Controller
     public class GameTimerController : BaseController, IUpdateable, IOnEventCallback
     {
 
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.TimerUIView};
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.TimerUIView};
         private TimerUIView _view;
         private UpdateManager _updateManager;
         private float _currentGameTime;

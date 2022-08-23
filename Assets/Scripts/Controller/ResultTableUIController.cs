@@ -6,7 +6,7 @@ namespace Controller
 {
     public class ResultTableUIController : BaseController
     {
-        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = ViewPathLists.ResultTableView };
+        private readonly ResourcePath _viewPath = new ResourcePath { PathResource = PathLists.ResultTableView };
         private ResultTableView _view;
 
         public ResultTableUIController(Transform placeForUi)

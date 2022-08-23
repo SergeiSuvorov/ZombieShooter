@@ -9,7 +9,15 @@ public class WeaponView : MonoBehaviour
     [SerializeField]
     private Transform _visualEffectRoot;
 
-    private Player _ownerPlayer; 
+    [SerializeField]
+    private Transform _shootPoint;
+
+    [SerializeField]
+    private AudioSource _audioSource;
+    [SerializeField]
+    private Vector3 shootVector;
+
+    private Player _ownerPlayer;
     private void Awake()
     {
         _redDotDecal.SetActive(false);
@@ -18,18 +26,19 @@ public class WeaponView : MonoBehaviour
 
     public void SetOwner(Player ownerPlayer)
     {
-        _ownerPlayer=ownerPlayer;
+        _ownerPlayer = ownerPlayer;
     }
 
-    public void Action( int damage)
+    public void Action(int damage)
     {
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit))
+        if (Physics.Raycast(_shootPoint.position, transform.TransformDirection(shootVector), out hit))
         {
             var damageReceiver = hit.transform.GetComponent<IDamageReceiver>();
             if (damageReceiver != null)
                 damageReceiver.GetDamage(damage, _ownerPlayer);
         }
+        _audioSource.Play();
     }
 
     public void SetActiveVisualEffect(bool setActive)
@@ -41,7 +50,7 @@ public class WeaponView : MonoBehaviour
     {
         RaycastHit hit;
 
-        if (Physics.Raycast(transform.position, transform.TransformDirection(Vector3.forward), out hit))
+        if (Physics.Raycast(_shootPoint.position, transform.TransformDirection(shootVector), out hit))
         {
             _redDotDecal.transform.position = hit.point + hit.normal * 0.01f;
             _redDotDecal.transform.rotation = Quaternion.LookRotation(-hit.normal);
